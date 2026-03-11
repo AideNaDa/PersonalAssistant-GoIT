@@ -25,7 +25,7 @@ The bot supports managing contacts and text notes. Command parameters are indica
 
 | Command | Arguments | Description |
 | :--- | :--- | :--- |
-| **`add-note`** | `[title] [text] <tag1> <tag2>...` | Creates a new note with a title and text. The tag (`tag`) is optional. |
+| **`add-note`** | `[title] "[text]" <tag1> <tag2>...` | Creates a new note with a title and text in "". The tag (`tag`) is optional. |
 | **`add-tag`** | `[title] [tag]` or `[tag1] [tag2]...` | Adds one or more tags to an existing note. |
 | **`del-note`** | `[title]` | Deletes a note by its title. |
 | **`del-note`** | `[title] [tag1] <tag2>...` | Deletes a note tag by its title. |
