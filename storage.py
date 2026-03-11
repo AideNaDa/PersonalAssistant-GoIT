@@ -5,7 +5,7 @@ import json
 FILENAME = "data.json"
 
 
-def save_data(address_book: AddressBook, notebook: NoteBook):
+def save_data(address_book: AddressBook, notebook: NoteBook) -> None:
     combined_data = {
         "contacts": {
             name: record.to_dict()
