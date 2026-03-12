@@ -28,7 +28,7 @@ The bot supports managing contacts and text notes. Command parameters are indica
 | **`add-tag`** | `[title] [tag]` or `[tag1] [tag2]...` | Adds one or more tags to an existing note. |
 | **`del-note`** | `[title]` | Deletes a note by its title. |
 | **`del-note`** | `[title] [tag1] <tag2>...` | Deletes a note tag by its title. |
-| **`edit-note`**| `[title] [new_text]`<br>or `[old_tag] [new_tag]` | Changes the main text of a note or replaces an old tag with a new one. |
+| **`edit-note`**| `[title] [new_text]`<br>or `[title] [old_tag] [new_tag]` | Changes the main text of a note or replaces an old tag with a new one. |
 | **`find-note`**| `[query]` | Searches for a note by its title or attached tags. |
 | **`show-all-note`** | *- no arguments -* | Displays a list of all saved notes. |
 
