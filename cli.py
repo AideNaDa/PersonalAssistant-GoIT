@@ -1,5 +1,5 @@
 from services.address_book_service import *
-from services.notes_book_service import *
+from services.note_book_service import *
 from storage import *
 
 
