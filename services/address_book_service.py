@@ -1,113 +1,51 @@
-from datetime import datetime, timedelta
-from models.address_book import Record, DATE_FORMAT, PHONE_LENGTH
-from typing import Callable
+from models.address_book import Record
 
 
-def input_error(func: Callable) -> Callable:
-    def inner(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except ValueError as e:
-            # Handle validation and argument errors
-            return str(e)
-        except KeyError as e:
-            # Catches "Contact not found" errors
-            return e.args[0]
-        except IndexError as e:
-            # In case len(args) was missed somewhere
-            return "Enter user name."
-        except Exception as e:
-            # Any other unforeseen error
-            return f"An unexpected error occurred: {e}"
-
-    return inner
-
-
-def _is_email(value: str) -> bool:
-    return "@" in value and "." in value
-
-
-def _is_phone(value: str) -> bool:
-    return value.isdigit() and len(value) == PHONE_LENGTH
-
-
-def _is_birthday(value: str) -> bool:
-    try:
-        datetime.strptime(value, DATE_FORMAT)
-        return True
-    except ValueError:
-        return False
-
-
-def _add_phone(record, phone: str) -> str:
-    try:
-        record.add_phone(phone)
-    except ValueError as error:
-        return str(error)
-    return f"Phone '{phone}' added."
-
-
-def _add_email(record, email: str) -> str:
-    try:
-        record.add_email(email)
-    except ValueError as error:
-        return str(error)
-    return f"Email '{email}' added."
-
-
-def _add_birthday(record, birthday: str) -> str:
-    try:
-        record.add_birthday(birthday)
-    except ValueError as error:
-        return str(error)
-    return f"Birthday '{birthday}' added."
-
-
-def _add_address(record, address: str) -> str:
-    try:
-        record.add_address(address)
-    except ValueError as error:
-        return str(error)
-    return f"Address '{address}' added."
-
-
-@input_error
-def add(args, address_book) -> str:
-    if not args:
-        return "Enter the contact name."
-
-    name = args[0]
-    values = args[1:]
+def add_contact(
+    address_book,
+    name: str,
+    phone: str,
+    email: str | None = None,
+    birthday: str | None = None,
+    address: str | None = None,
+) -> str:
 
     record = address_book.find(name)
-    created = False
 
     if record is None:
         try:
             record = Record(name)
             address_book.add_record(record)
-            created = True
         except ValueError as error:
             return str(error)
 
-    if not values:
-        if created:
-            return f"Contact '{name}' created."
-        return f"Contact '{name}' already exists."
-
     messages = []
 
-    for value in values:
-        if _is_phone(value):
-            messages.append(_add_phone(record, value))
-        elif _is_email(value):
-            messages.append(_add_email(record, value))
-        elif _is_birthday(value):
-            messages.append(_add_birthday(record, value))
-        else:
-            messages.append(_add_address(record, value))
+    try:
+        record.add_phone(phone)
+        messages.append(f"Phone '{phone}' added.")
+    except ValueError as error:
+        messages.append(str(error))
 
-    if created:
-        return f"Contact '{name}' created. " + " ".join(messages)
+    if email:
+        try:
+            record.add_email(email)
+            messages.append(f"Email '{email}' added.")
+        except ValueError as error:
+            messages.append(str(error))
+
+    if birthday:
+        try:
+            record.add_birthday(birthday)
+            messages.append(f"Birthday '{birthday}' added.")
+        except ValueError as error:
+            messages.append(str(error))
+
+    if address:
+        try:
+            record.add_address(address)
+            messages.append(f"Address '{address}' added.")
+        except ValueError as error:
+            messages.append(str(error))
 
     return " ".join(messages)
