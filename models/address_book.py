@@ -29,15 +29,17 @@ class Name(Field):
         super().__init__(value)
 
 
-class Phone(
-    Field
-):  # На дошці Trello названо PhoneNumber, можете перейменувати за потреби
-    """Phone number with basic validation."""
-
+class Phone(Field):
     def __init__(self, value: str) -> None:
-        if not value.isdigit() or len(value) != PHONE_LENGTH:
-            raise ValueError("Phone number must be a 10-digit number.")
-        super().__init__(value)
+        clean_phone = re.sub(r"(?!^\+)\D", "", value)
+        pattern = r"^\+?\d{10,15}$"
+
+        if not re.match(pattern, clean_phone):
+            raise ValueError(
+                "Phone must contain 10–15 digits. Example: +380123456789"
+            )
+
+        super().__init__(clean_phone)
 
 
 class Email(Field):
@@ -79,30 +81,42 @@ class Record:
         self.birthday: Birthday | None = None
         self.emails: list[Email] = []
         self.address: Address | None = None
+        
+    def _normalize_phone(self, phone: str) -> str:
+        return re.sub(r"(?!^\+)\D", "", phone)
 
     def add_phone(self, phone: str) -> None:
         if self.find_phone(phone):
             raise ValueError("Phone already exists")
+
         self.phones.append(Phone(phone))
 
     def remove_phone(self, phone: str) -> None:
         phone_obj = self.find_phone(phone)
+
         if phone_obj is None:
             raise ValueError(f"Phone {phone} not found in this contact.")
+
         self.phones.remove(phone_obj)
 
     def edit_phone(self, old_phone: str, new_phone: str) -> None:
         phone_obj = self.find_phone(old_phone)
+
         if phone_obj is None:
             raise ValueError(f"Phone {old_phone} not found in this contact.")
-        Phone(new_phone)  # Validate new phone first
+
+        Phone(new_phone)  # validate new phone
+
         self.remove_phone(old_phone)
         self.add_phone(new_phone)
 
     def find_phone(self, phone: str) -> Phone | None:
+        normalized = self._normalize_phone(phone)
+
         for p in self.phones:
-            if p.value == phone:
+            if p.value == normalized:
                 return p
+
         return None
 
     def add_birthday(self, birthday: str) -> None:
