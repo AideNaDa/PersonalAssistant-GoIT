@@ -3,9 +3,9 @@ from cli import run_cli
 
 
 def main():
-    book = load_data()
-    run_cli(book)
-    save_data(book)
+    address_book, notebook = load_data()
+    run_cli(address_book, notebook)
+    save_data(address_book, notebook)
     print("Data saved.")
 
 

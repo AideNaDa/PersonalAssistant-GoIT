@@ -8,6 +8,7 @@ def parse_input(user_input):
     cmd = cmd.strip().lower()
     return cmd, *args
 
+
 # вспомагательная функция вывода инструкции
 def display_instruction() -> str:
     help_text = f"""
@@ -48,8 +49,7 @@ def display_instruction() -> str:
 
 
 def run_cli(address_book, notebook):
-    address_book, notebook = load_data()
-    print("Assistant bot started. Type 'exit' to quit.")
+    print("Assistant bot started. Type 'hello' to start or 'exit' to quit.")
     while True:
         try:
             user_input = input(">> ")
@@ -67,11 +67,15 @@ def run_cli(address_book, notebook):
                 save_data(address_book, notebook)
                 break
             case "hello":
-                print(
-                    "Hello, enter '?' or 'help' for instruction"
-                )
-            case 'help':
+                print("Hello, enter '?' or 'help' for instruction")
+            case "help":
+                print(display_instruction())
+            case "?":
+                print(display_instruction())
 
+            # address book
+            case "add":
+                print(add(args, address_book))
 
             # notebook
             case "add-note":

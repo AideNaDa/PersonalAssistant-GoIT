@@ -1,9 +1,30 @@
 from datetime import datetime, timedelta
 from models.address_book import Record, DATE_FORMAT, PHONE_LENGTH
+from typing import Callable
+
+
+def input_error(func: Callable) -> Callable:
+    def inner(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except ValueError as e:
+            # Handle validation and argument errors
+            return str(e)
+        except KeyError as e:
+            # Catches "Contact not found" errors
+            return e.args[0]
+        except IndexError as e:
+            # In case len(args) was missed somewhere
+            return "Enter user name."
+        except Exception as e:
+            # Any other unforeseen error
+            return f"An unexpected error occurred: {e}"
+
+    return inner
 
 
 def _is_email(value: str) -> bool:
-    return "@" in value
+    return "@" in value and "." in value
 
 
 def _is_phone(value: str) -> bool:
@@ -50,6 +71,7 @@ def _add_address(record, address: str) -> str:
     return f"Address '{address}' added."
 
 
+@input_error
 def add(args, address_book) -> str:
     if not args:
         return "Enter the contact name."

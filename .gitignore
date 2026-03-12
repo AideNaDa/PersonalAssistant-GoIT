@@ -209,3 +209,5 @@ __marimo__/
 # Pull requests list
 pullrequests_list.txt
 
+# Data
+*.json

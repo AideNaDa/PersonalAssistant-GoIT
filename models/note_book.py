@@ -1,5 +1,5 @@
 from collections import UserDict
-from address_book import Field
+from models.address_book import Field
 
 
 class Title(Field):
@@ -42,7 +42,7 @@ class Note:
         }
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict(cls, data: dict) -> "Note":
         note = cls(data["title"], data["text"])
         for tag_val in data["tags"]:
             note.add_tag(tag_val)

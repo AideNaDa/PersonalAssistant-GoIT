@@ -10,6 +10,7 @@ DATE_FORMAT = "%d-%m-%Y"
 
 class Field:
     """Base class for contact fields."""
+
     def __init__(self, value: Any) -> None:
         self.value = value
 
@@ -19,14 +20,20 @@ class Field:
 
 class Name(Field):
     """Contact name with basic validation."""
+
     def __init__(self, value: str) -> None:
         if len(value) > MAX_NAME_LENGTH:
-            raise ValueError(f"Name must be at most {MAX_NAME_LENGTH} characters long.")
+            raise ValueError(
+                f"Name must be at most {MAX_NAME_LENGTH} characters long."
+            )
         super().__init__(value)
 
 
-class Phone(Field): # На дошці Trello названо PhoneNumber, можете перейменувати за потреби
+class Phone(
+    Field
+):  # На дошці Trello названо PhoneNumber, можете перейменувати за потреби
     """Phone number with basic validation."""
+
     def __init__(self, value: str) -> None:
         if not value.isdigit() or len(value) != PHONE_LENGTH:
             raise ValueError("Phone number must be a 10-digit number.")
@@ -35,6 +42,7 @@ class Phone(Field): # На дошці Trello названо PhoneNumber, мож�
 
 class Email(Field):
     """Email with regex validation."""
+
     def __init__(self, value: str) -> None:
         pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
         if not re.match(pattern, value):
@@ -44,27 +52,32 @@ class Email(Field):
 
 class Address(Field):
     """Contact physical address."""
+
     def __init__(self, value: str) -> None:
         super().__init__(value)
 
 
 class Birthday(Field):
     """Birthday field with date validation."""
+
     def __init__(self, value: str) -> None:
         try:
             date_obj = datetime.strptime(value, DATE_FORMAT).date()
         except ValueError:
-            raise ValueError(f"Invalid date format. Use {DATE_FORMAT.replace('%', '')}.")
+            raise ValueError(
+                f"Invalid date format. Use {DATE_FORMAT.replace('%', '')}."
+            )
         super().__init__(date_obj)
 
 
 class Record:
     """Represents a contact record with various fields."""
+
     def __init__(self, name: str) -> None:
         self.name = Name(name)
         self.phones: list[Phone] = []
         self.birthday: Birthday | None = None
-        self.email: Email | None = None
+        self.emails: list[Email] = []
         self.address: Address | None = None
 
     def add_phone(self, phone: str) -> None:
@@ -96,14 +109,37 @@ class Record:
         self.birthday = Birthday(birthday)
 
     def add_email(self, email: str) -> None:
-        self.email = Email(email)
+        if email in [email.value for email in self.emails]:
+            raise ValueError("Email already exists")
+        self.emails.append(Email(email))
 
     def add_address(self, address: str) -> None:
         self.address = Address(address)
 
+    def to_dict(self):
+        return {
+            "name": self.name.value,
+            "phones": (
+                [phone.value for phone in self.phones]
+                if self.phones
+                else "None"
+            ),
+            "birthday": self.birthday.value if self.birthday else "None",
+            "email": (
+                [email.value for email in self.emails]
+                if self.emails
+                else "None"
+            ),
+            "address": self.address.value if self.address else "None",
+        }
+
+    def from_dict(self, data: dict) -> "Record":
+        pass
+
 
 class AddressBook(UserDict):
     """Container for contact records."""
+
     def add_record(self, record: Record) -> None:
         self.data[record.name.value] = record
 
@@ -125,21 +161,20 @@ class AddressBook(UserDict):
             if query in str(record.name).lower():
                 results.append(record)
                 continue
-            
+
             # Пошук по телефонах
             if any(query in str(phone) for phone in record.phones):
                 results.append(record)
                 continue
-            
+
             # Пошук по email
             if record.email and query in str(record.email).lower():
                 results.append(record)
                 continue
-                
+
             # Пошук по адресі
             if record.address and query in str(record.address).lower():
                 results.append(record)
                 continue
-                
+
         return results
-    

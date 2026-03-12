@@ -1,5 +1,5 @@
 from models.note_book import NoteBook, Note
-from address_book_service import input_error
+from services.address_book_service import input_error
 
 
 @input_error
