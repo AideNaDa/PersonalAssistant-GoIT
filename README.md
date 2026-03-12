@@ -11,7 +11,6 @@ The bot supports managing contacts and text notes. Command parameters are indica
 | Command | Arguments | Description |
 | :--- | :--- | :--- |
 | **`add`** | `[name]` `<phone> <birthday> <address> <email>` | Creates a new contact. Additional parameters (birthday, address, email) are optional. **The order of the arguments does not matter.** |
-| **`add`** | `[name] [phone]` and/or `[email]` | Adds another phone number and/or email to an existing contact. |
 | **`birthdays`** | `[num]` | Displays a list of contacts who have a birthday coming up in the specified number of days (`num`). |
 | **`del`** | `[name]` | Deletes the contact and all associated data completely. |
 | **`del`** | `[name] [phone]` or `[email]` or `[birthday]` or `[address]` | Deletes a specific field for the selected contact (e.g., only the email or just one of the phone numbers). |
