@@ -1,60 +1,91 @@
 from datetime import datetime, timedelta
-from models.address_book import AddressBook, Record
+from models.address_book import Record, DATE_FORMAT, PHONE_LENGTH
 
 
-def input_error(func):
-    def inner(*args, **kwargs):
+def _is_email(value: str) -> bool:
+    return "@" in value
+
+
+def _is_phone(value: str) -> bool:
+    return value.isdigit() and len(value) == PHONE_LENGTH
+
+
+def _is_birthday(value: str) -> bool:
+    try:
+        datetime.strptime(value, DATE_FORMAT)
+        return True
+    except ValueError:
+        return False
+
+
+def _add_phone(record, phone: str) -> str:
+    try:
+        record.add_phone(phone)
+    except ValueError as error:
+        return str(error)
+    return f"Phone '{phone}' added."
+
+
+def _add_email(record, email: str) -> str:
+    try:
+        record.add_email(email)
+    except ValueError as error:
+        return str(error)
+    return f"Email '{email}' added."
+
+
+def _add_birthday(record, birthday: str) -> str:
+    try:
+        record.add_birthday(birthday)
+    except ValueError as error:
+        return str(error)
+    return f"Birthday '{birthday}' added."
+
+
+def _add_address(record, address: str) -> str:
+    try:
+        record.add_address(address)
+    except ValueError as error:
+        return str(error)
+    return f"Address '{address}' added."
+
+
+def add(args, address_book) -> str:
+    if not args:
+        return "Enter the contact name."
+
+    name = args[0]
+    values = args[1:]
+
+    record = address_book.find(name)
+    created = False
+
+    if record is None:
         try:
-            return func(*args, **kwargs)
-        except ValueError as e:
-            return f"❌ Error: {e}"
-        except KeyError:
-            return "❌ Error: Contact not found."
-        except IndexError:
-            return "❌ Error: Please provide all necessary arguments."
+            record = Record(name)
+            address_book.add_record(record)
+            created = True
+        except ValueError as error:
+            return str(error)
 
-    return inner
+    if not values:
+        if created:
+            return f"Contact '{name}' created."
+        return f"Contact '{name}' already exists."
 
+    messages = []
 
-@input_error
-def add_contact(args, book: AddressBook):
-    pass
+    for value in values:
+        if _is_phone(value):
+            messages.append(_add_phone(record, value))
+        elif _is_email(value):
+            messages.append(_add_email(record, value))
+        elif _is_birthday(value):
+            messages.append(_add_birthday(record, value))
+        else:
+            messages.append(_add_address(record, value))
 
+    if created:
+        return f"Contact '{name}' created. " + " ".join(messages)
 
-@input_error
-def change_contact(args, book: AddressBook):
-    pass
-
-
-@input_error
-def add_birthday(args, book: AddressBook):
-    pass
-
-
-@input_error
-def get_upcoming_birthdays(book: AddressBook):
-    pass
-
-
-@input_error
-def add_address(args, book: AddressBook):
-    pass
-
-
-@input_error
-def add_email(args, book: AddressBook):
-    pass
-
-
-@input_error
-def show_contact(args, book: AddressBook):
-    pass
-
-
-def show_all_contacts(book: AddressBook):
-    pass
-
-
-@input_error
-def del_contact(args, book: AddressBook):
-    pass
+    return " ".join(messages)
