@@ -1,3 +1,9 @@
+from datetime import date, datetime
+from typing import Optional, Callable
+
+from models.address_book import AddressBook, Record, DATE_FORMAT
+
+
 def is_phone(val: str) -> bool:
     return bool(re.fullmatch(r'\d{10}', val))
 def is_email(val: str) -> bool:
