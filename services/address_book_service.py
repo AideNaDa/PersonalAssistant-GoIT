@@ -2,59 +2,53 @@ from datetime import datetime, timedelta
 from models.address_book import AddressBook, Record
 
 
-def input_error(func):
-    def inner(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except ValueError as e:
-            return f"❌ Error: {e}"
-        except KeyError:
-            return "❌ Error: Contact not found."
-        except IndexError:
-            return "❌ Error: Please provide all necessary arguments."
-
-    return inner
+def _add_email(record, email: str) -> str:
+    try:
+        record.add_email(email)
+    except ValueError as error:
+        return str(error)
+    return f"Email '{email}' added."
 
 
-@input_error
-def add_contact(args, book: AddressBook):
-    pass
+def _add_birthday(record, birthday: str) -> str:
+    try:
+        record.add_birthday(birthday)
+    except ValueError as error:
+        return str(error)
+    return f"Birthday '{birthday}' added."
 
 
-@input_error
-def change_contact(args, book: AddressBook):
-    pass
+def _add_address(record, address: str) -> str:
+    try:
+        record.add_address(address)
+    except ValueError as error:
+        return str(error)
+    return "Address added."
 
 
-@input_error
-def add_birthday(args, book: AddressBook):
-    pass
+def _is_birthday(value: str) -> bool:
+    try:
+        datetime.strptime(value, "%d.%m.%Y")
+        return True
+    except ValueError:
+        return False
 
 
-@input_error
-def get_upcoming_birthdays(book: AddressBook):
-    pass
+def add(args, address_book) -> str:
+    if len(args) < 2:
+        return "Enter name and value to add."
 
+    name = args[0]
+    value = " ".join(args[1:]).strip()
 
-@input_error
-def add_address(args, book: AddressBook):
-    pass
+    record = address_book.find(name)
+    if record is None:
+        return f"Contact '{name}' not found."
 
+    if "@" in value:
+        return _add_email(record, value)
 
-@input_error
-def add_email(args, book: AddressBook):
-    pass
+    if _is_birthday(value):
+        return _add_birthday(record, value)
 
-
-@input_error
-def show_contact(args, book: AddressBook):
-    pass
-
-
-def show_all_contacts(book: AddressBook):
-    pass
-
-
-@input_error
-def del_contact(args, book: AddressBook):
-    pass
+    return _add_address(record, value)
