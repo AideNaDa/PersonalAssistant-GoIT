@@ -120,21 +120,27 @@ class Record:
         return {
             "name": self.name.value,
             "phones": (
-                [phone.value for phone in self.phones]
-                if self.phones
-                else "None"
+                [phone.value for phone in self.phones] if self.phones else None
             ),
-            "birthday": self.birthday.value if self.birthday else "None",
+            "birthday": self.birthday.value if self.birthday else None,
             "email": (
-                [email.value for email in self.emails]
-                if self.emails
-                else "None"
+                [email.value for email in self.emails] if self.emails else None
             ),
             "address": self.address.value if self.address else "None",
         }
 
-    def from_dict(self, data: dict) -> "Record":
-        pass
+    @classmethod
+    def from_dict(cls, data: dict) -> "Record":
+        record = cls(data["name"])
+        for phone in data.get("phones", []):
+            record.add_phone(phone)
+        for email in data.get("emails", []):
+            record.add_email(email)
+        if data.get("birthday"):
+            record.birthday = Birthday(data["birthday"])
+        if data.get("address"):
+            record.address = Address(data["address"])
+        return record
 
 
 class AddressBook(UserDict):

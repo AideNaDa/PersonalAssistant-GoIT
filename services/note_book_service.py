@@ -55,7 +55,7 @@ def find_note(args: list[str], notebook: NoteBook) -> str:
         return "\n".join(results) if results else "No matches found."
 
 
-def show_all_note(notebook: NoteBook) -> str:
+def show_all_notes(notebook: NoteBook) -> str:
     if not notebook.data:
         return "Notebook is emty."
     results = [str(note) for note in notebook.data.values()]

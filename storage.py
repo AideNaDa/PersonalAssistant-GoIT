@@ -31,9 +31,7 @@ def load_data() -> tuple[AddressBook, NoteBook]:
             # Uploading contacts
             contacts = full_data.get("contacts", {})
             for record_data in contacts.values():
-                address_book.add_record(
-                    address_book.add_record(Record.from_dict(record_data))
-                )
+                address_book.add_record(Record.from_dict(record_data))
 
             # Uploading notes
             notes = full_data.get("notes", {})
