@@ -119,22 +119,18 @@ class Record:
     def to_dict(self):
         return {
             "name": self.name.value,
-            "phones": (
-                [phone.value for phone in self.phones] if self.phones else None
-            ),
+            "phones": ([phone.value for phone in self.phones]),
             "birthday": self.birthday.value if self.birthday else None,
-            "email": (
-                [email.value for email in self.emails] if self.emails else None
-            ),
-            "address": self.address.value if self.address else "None",
+            "email": ([email.value for email in self.emails]),
+            "address": self.address.value if self.address else None,
         }
 
     @classmethod
     def from_dict(cls, data: dict) -> "Record":
         record = cls(data["name"])
-        for phone in data.get("phones", []):
+        for phone in data.get("phones", ["No phones"]):
             record.add_phone(phone)
-        for email in data.get("emails", []):
+        for email in data.get("emails", ["No emails"]):
             record.add_email(email)
         if data.get("birthday"):
             record.birthday = Birthday(data["birthday"])
