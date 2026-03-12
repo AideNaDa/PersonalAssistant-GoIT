@@ -1,10 +1,17 @@
 from collections import UserDict
 from models.address_book import Field
+import textwrap
+
+MAX_TITLE_LENGTH = 26
 
 
 class Title(Field):
-
-    pass
+    def __init__(self, value: str) -> None:
+        if len(value) > MAX_TITLE_LENGTH:
+            raise ValueError(
+                f"Title must be at most {MAX_TITLE_LENGTH} characters long."
+            )
+        super().__init__(value)
 
 
 class Body(Field):
@@ -52,9 +59,22 @@ class Note:
         tags_str = (
             ", ".join(t.value for t in self.tags) if self.tags else "No tags"
         )
-        return (
-            f"Title: {self.title}\n" f"Text: {self.text}\n" f"Tags: {tags_str}"
-        )
+
+        wrapped = textwrap.wrap(self.text.value, width=58)
+
+        lines = []
+        for i, line in enumerate(wrapped):
+            if i == 0:
+                lines.append(f"Title: {self.title.value:<26} | Text: {line}")
+            else:
+                lines.append(f"{'':<33} | {line}")
+
+        sep_bolt = "=" * 100
+        sep = "-" * 100
+
+        body = "\n".join(lines)
+
+        return "\n".join([sep_bolt, body, sep, tags_str, sep_bolt])
 
 
 class NoteBook(UserDict):

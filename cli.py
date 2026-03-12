@@ -1,12 +1,16 @@
 from services.address_book_service import *
 from services.note_book_service import *
 from storage import *
+import shlex
 
 
 def parse_input(user_input):
-    cmd, *args = user_input.split()
-    cmd = cmd.strip().lower()
-    return cmd, *args
+    try:
+        parts = shlex.split(user_input)
+    except ValueError:
+        return "unclosed quotes", []
+    cmd, args = parts[0].lower(), parts[1:]
+    return cmd, args
 
 
 # вспомагательная функция вывода инструкции
@@ -52,12 +56,18 @@ def run_cli(address_book, notebook):
     print("Assistant bot started. Type 'hello' to start or 'exit' to quit.")
     while True:
         try:
-            user_input = input(">> ")
+            user_input = input("Enter a command: ")
+            if not user_input.strip():
+                continue
         except KeyboardInterrupt:
             print("\nGood bye!")
             break
-        command, *args = parse_input(user_input)
+
+        command, args = parse_input(user_input)
         match command:
+            case "unclosed quotes":
+                print("Invalid input: unclosed quotes.")
+                continue
             case "close":
                 print("Good bye!")
                 save_data(address_book, notebook)
