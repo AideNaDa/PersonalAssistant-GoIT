@@ -29,9 +29,7 @@ class Name(Field):
         super().__init__(value)
 
 
-class Phone(
-    Field
-):  # На дошці Trello названо PhoneNumber, можете перейменувати за потреби
+class Phone(Field):
     """Phone number with basic validation."""
 
     def __init__(self, value: str) -> None:
@@ -109,34 +107,66 @@ class Record:
         self.birthday = Birthday(birthday)
 
     def add_email(self, email: str) -> None:
-        if email in [email.value for email in self.emails]:
+        if email in [e.value for e in self.emails]:
             raise ValueError("Email already exists")
         self.emails.append(Email(email))
+
+    def remove_email(self, email: str) -> None:
+        email_obj = self.find_email(email)
+        if email_obj is None:
+            raise ValueError(f"Email {email} not found in this contact.")
+        self.emails.remove(email_obj)
+
+    def edit_email(self, old_email: str, new_email: str) -> None:
+        email_obj = self.find_email(old_email)
+        if email_obj is None:
+            raise ValueError(f"Email {old_email} not found in this contact.")
+        Email(new_email)  # Валідація нового email
+        self.remove_email(old_email)
+        self.add_email(new_email)
+
+    def find_email(self, email: str) -> Email | None:
+        for e in self.emails:
+            if e.value == email:
+                return e
+        return None
 
     def add_address(self, address: str) -> None:
         self.address = Address(address)
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, Any]:
         return {
             "name": self.name.value,
-            "phones": ([phone.value for phone in self.phones]),
-            "birthday": self.birthday.value if self.birthday else None,
-            "email": ([email.value for email in self.emails]),
+            "phones": [phone.value for phone in self.phones],
+            "birthday": self.birthday.value.strftime(DATE_FORMAT) if self.birthday else None,
+            "emails": [email.value for email in self.emails],
             "address": self.address.value if self.address else None,
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "Record":
+    def from_dict(cls, data: dict[str, Any]) -> "Record":
         record = cls(data["name"])
-        for phone in data.get("phones", ["No phones"]):
+        for phone in data.get("phones", []):
             record.add_phone(phone)
-        for email in data.get("emails", ["No emails"]):
+        for email in data.get("emails", []):
             record.add_email(email)
         if data.get("birthday"):
-            record.birthday = Birthday(data["birthday"])
+            record.add_birthday(data["birthday"])
         if data.get("address"):
-            record.address = Address(data["address"])
+            record.add_address(data["address"])
         return record
+
+    def __str__(self) -> str:
+        phones = "; ".join(p.value for p in self.phones)
+        emails = "; ".join(e.value for e in self.emails)
+        birthday = self.birthday.value.strftime(DATE_FORMAT) if self.birthday else "N/A"
+        address = self.address.value if self.address else "N/A"
+        
+        return (f"Contact name: {self.name.value}, "
+                f"phones: {phones if phones else 'N/A'}, "
+                f"emails: {emails if emails else 'N/A'}, "
+                f"birthday: {birthday}, "
+                f"address: {address}")
 
 
 class AddressBook(UserDict):
@@ -170,7 +200,7 @@ class AddressBook(UserDict):
                 continue
 
             # Пошук по email
-            if record.email and query in str(record.email).lower():
+            if any(query in str(email).lower() for email in record.emails):
                 results.append(record)
                 continue
 
