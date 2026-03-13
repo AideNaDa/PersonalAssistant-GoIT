@@ -146,3 +146,73 @@ def find(args: list[str], book: AddressBook) -> str:
             continue
 
     return "\n".join(results)
+
+
+@input_error
+def delete(args: list[str], book: AddressBook) -> str:
+    if not args:
+        raise ValueError("Provide a name.")
+    name, *rest = args
+    record = book.find(name)
+    if not record:
+        raise KeyError("Contact not found.")
+
+    # If there is only one argument, delete the contact entirely
+    if not rest:
+        del book.data[name]
+        return f"Contact '{name}' deleted entirely."
+
+    field = rest[0]
+    if is_phone(field):
+        record.phones = [p for p in record.phones if p.value != field]
+        return "Phone deleted."
+    elif is_email(field):
+        record.emails = [e for e in record.emails if e.value != field]
+        return "Email deleted."
+    elif (
+        is_date(field)
+        and record.birthday
+        and record.birthday.to_string() == field
+    ):
+        record.birthday = None
+        return "Birthday deleted."
+    elif record.address and record.address.value == field:
+        record.address = None
+        return "Address deleted."
+    else:
+        return "Field not found."
+
+
+@input_error
+def edit(args: list[str], book: AddressBook) -> str:
+    if len(args) < 2:
+        raise ValueError("Provide name and new value(s).")
+    name, *rest = args
+    record = book.find(name)
+    if not record:
+        raise KeyError("Contact not found.")
+
+    if len(rest) == 2:
+        old_val, new_val = rest
+        if is_phone(old_val) and is_phone(new_val):
+            record.phones = [p for p in record.phones if p.value != old_val]
+            record.add_phone(new_val)
+            return "Phone replaced."
+        elif is_email(old_val) and is_email(new_val):
+            record.emails = [e for e in record.emails if e.value != old_val]
+            record.add_email(new_val)
+            return "Email replaced."
+    elif len(rest) == 1:
+        new_val = rest[0]
+        if is_date(new_val):
+            record.birthday = Birthday(new_val)
+            return "Birthday updated."
+    else:
+        address_parts = []
+        for arg in rest:
+            address_parts.append(arg)
+
+        record.address = Address(" ".join(address_parts))
+        return "Address updated."
+
+    return "Invalid edit format."
