@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import Optional, Callable
 import re
 
@@ -70,3 +70,55 @@ def add(args: list[str], book: AddressBook) -> str:
         record.address = Address(" ".join(address_parts))
 
     return msg
+
+
+def _get_next_birthday(birthday_date: date, today: date) -> date:
+    try:
+        next_birthday = birthday_date.replace(year=today.year)
+    except ValueError:
+        next_birthday = birthday_date.replace(year=today.year, day=28)
+
+    if next_birthday < today:
+        try:
+            next_birthday = birthday_date.replace(year=today.year + 1)
+        except ValueError:
+            next_birthday = birthday_date.replace(year=today.year + 1, day=28)
+
+    return next_birthday
+
+
+@input_error
+def birthdays(args: list[str], book: AddressBook) -> str:
+    days = 7
+    
+    if args:
+        try:
+            days = int(args[0])
+            if days < 0:
+                raise ValueError("Number of days must be 0 or greater.")
+        except ValueError:
+            raise ValueError("Please provide a valid integer for days.")
+    
+    today = date.today()
+    result = []
+
+    for record in book.data.values():
+        if record.birthday is None:
+            continue
+
+        birthday_date = record.birthday.value
+        next_birthday = _get_next_birthday(birthday_date, today)
+        delta_days = (next_birthday - today).days
+
+        if 0 <= delta_days <= days:
+            phones = ", ".join(phone.value for phone in record.phones) if record.phones else "N/A"
+            birthday_str = record.birthday.value.strftime(DATE_FORMAT)
+
+            result.append(
+                f"Name: {record.name.value}, Phone: {phones}, Birthday: {birthday_str}"
+            )
+
+    if not result:
+        return f"No birthdays in the next {days} days."
+
+    return "\n".join(result)
