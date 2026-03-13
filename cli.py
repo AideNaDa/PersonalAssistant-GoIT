@@ -87,6 +87,9 @@ def run_cli(address_book, notebook):
             case "add":
                 print(add(args, address_book))
 
+            case "birthdays":
+                print(birthdays(args, address_book))
+
             # notebook
             case "add-note":
                 print(add_note(args, notebook))

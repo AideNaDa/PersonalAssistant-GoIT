@@ -8,6 +8,8 @@ from models.address_book import (
     DATE_FORMAT,
     Birthday,
     Address,
+    HEADER,
+    SEPORATOR,
 )
 
 
@@ -90,7 +92,7 @@ def _get_next_birthday(birthday_date: date, today: date) -> date:
 @input_error
 def birthdays(args: list[str], book: AddressBook) -> str:
     days = 7
-    
+
     if args:
         try:
             days = int(args[0])
@@ -98,9 +100,9 @@ def birthdays(args: list[str], book: AddressBook) -> str:
                 raise ValueError("Number of days must be 0 or greater.")
         except ValueError:
             raise ValueError("Please provide a valid integer for days.")
-    
+
     today = date.today()
-    result = []
+    result = [SEPORATOR, HEADER, SEPORATOR]
 
     for record in book.data.values():
         if record.birthday is None:
@@ -111,12 +113,7 @@ def birthdays(args: list[str], book: AddressBook) -> str:
         delta_days = (next_birthday - today).days
 
         if 0 <= delta_days <= days:
-            phones = ", ".join(phone.value for phone in record.phones) if record.phones else "N/A"
-            birthday_str = record.birthday.value.strftime(DATE_FORMAT)
-
-            result.append(
-                f"Name: {record.name.value}, Phone: {phones}, Birthday: {birthday_str}"
-            )
+            result.append(str(record))
 
     if not result:
         return f"No birthdays in the next {days} days."
