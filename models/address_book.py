@@ -222,29 +222,3 @@ class AddressBook(UserDict):
             return f"Contact '{name}' has been deleted"
         else:
             raise KeyError(f"Contact '{name}' not found.")
-
-    def search(self, query: str) -> list[Record]:
-        """Search contacts by partial match in name, phone, email or address."""
-        query = query.lower()
-        results = []
-        for record in self.data.values():
-            if query in str(record.name).lower():
-                results.append(record)
-                continue
-
-            # Пошук по телефонах
-            if any(query in str(phone) for phone in record.phones):
-                results.append(record)
-                continue
-
-            # Пошук по email
-            if any(query in str(email).lower() for email in record.emails):
-                results.append(record)
-                continue
-
-            # Пошук по адресі
-            if record.address and query in str(record.address).lower():
-                results.append(record)
-                continue
-
-        return results

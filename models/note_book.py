@@ -84,11 +84,11 @@ class NoteBook(UserDict):
         self.data[note.title.value.lower()] = note
 
     def find(self, title: str) -> Note | None:
-        return self.data.get(title)
+        return self.data.get(title.lower())
 
     def delete(self, title: str):
         if title in self.data:
-            del self.data[title]
+            del self.data[title.lower()]
             return f"Note with title '{title}' has been deleted"
         else:
             raise KeyError(f"Note with title '{title}' not found.")
