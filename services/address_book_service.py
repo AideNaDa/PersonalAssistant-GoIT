@@ -90,12 +90,15 @@ def _get_next_birthday(birthday_date: date, today: date) -> date:
 @input_error
 def birthdays(args: list[str], book: AddressBook) -> str:
     days = 7
-
+    
     if args:
-        days = int(args[0])
-        if days < 0:
-            raise ValueError("Number of days must be 0 or greater.")
-
+        try:
+            days = int(args[0])
+            if days < 0:
+                raise ValueError("Number of days must be 0 or greater.")
+        except ValueError:
+            raise ValueError("Please provide a valid integer for days.")
+    
     today = date.today()
     result = []
 
