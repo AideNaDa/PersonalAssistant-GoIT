@@ -6,6 +6,19 @@ from typing import Any
 MAX_NAME_LENGTH = 21
 PHONE_LENGTH = 10
 DATE_FORMAT = "%d-%m-%Y"
+NAME_COL = 21
+PHONE_COL = 13
+EMAIL_COL = 35
+BDAY_COL = 10
+ADDR_COL = 35
+HEADER = (
+    f"{"Name":<{NAME_COL}} "
+    f"| {"Phone":<{PHONE_COL}} "
+    f"| {"Email":<{EMAIL_COL}} "
+    f"| {"Birthday":<{BDAY_COL}} "
+    f"| {"Address":<{ADDR_COL}}"
+)
+SEPORATOR = "-" * len(HEADER)
 
 
 class Field:
@@ -138,7 +151,11 @@ class Record:
         return {
             "name": self.name.value,
             "phones": [phone.value for phone in self.phones],
-            "birthday": self.birthday.value.strftime(DATE_FORMAT) if self.birthday else None,
+            "birthday": (
+                self.birthday.value.strftime(DATE_FORMAT)
+                if self.birthday
+                else None
+            ),
             "emails": [email.value for email in self.emails],
             "address": self.address.value if self.address else None,
         }
@@ -157,16 +174,37 @@ class Record:
         return record
 
     def __str__(self) -> str:
-        phones = "; ".join(p.value for p in self.phones)
-        emails = "; ".join(e.value for e in self.emails)
-        birthday = self.birthday.value.strftime(DATE_FORMAT) if self.birthday else "N/A"
-        address = self.address.value if self.address else "N/A"
-        
-        return (f"Contact name: {self.name.value}, "
-                f"phones: {phones if phones else 'N/A'}, "
-                f"emails: {emails if emails else 'N/A'}, "
-                f"birthday: {birthday}, "
-                f"address: {address}")
+        name = self.name.value
+        phones = [p.value for p in self.phones] or [""]
+        emails = [e.value for e in self.emails] or [""]
+
+        birthday = (
+            self.birthday.value.strftime(DATE_FORMAT) if self.birthday else ""
+        )
+        address = self.address.value if self.address else ""
+
+        rows = max(len(phones), len(emails), 1)
+
+        lines = []
+
+        for i in range(rows):
+            name_part = name if i == 0 else ""
+            phone_part = phones[i] if i < len(phones) else ""
+            email_part = emails[i] if i < len(emails) else ""
+            bday_part = birthday if i == 0 else ""
+            addr_part = address if i == 0 else ""
+
+            line = (
+                f"{name_part:<{NAME_COL}} "
+                f"| {phone_part:<{PHONE_COL}} "
+                f"| {email_part:<{EMAIL_COL}} "
+                f"| {bday_part:<{BDAY_COL}} "
+                f"| {addr_part:<{ADDR_COL}}"
+            )
+
+            lines.append(line)
+        lines.append(SEPORATOR)
+        return "\n".join(lines)
 
 
 class AddressBook(UserDict):
