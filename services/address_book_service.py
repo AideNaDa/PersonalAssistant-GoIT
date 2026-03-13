@@ -119,3 +119,30 @@ def birthdays(args: list[str], book: AddressBook) -> str:
         return f"No birthdays in the next {days} days."
 
     return "\n".join(result)
+
+
+def find(args: list[str], book: AddressBook) -> str:
+    """Search contacts by partial match in name, phone, email or address."""
+    query = args[0].lower()
+    results = []
+    for record in book.data.values():
+        if query in str(record.name).lower():
+            results.append(str(record))
+            continue
+
+        # Пошук по телефонах
+        if any(query in str(phone) for phone in record.phones):
+            results.append(str(record))
+            continue
+
+        # Пошук по email
+        if any(query in str(email).lower() for email in record.emails):
+            results.append(str(record))
+            continue
+
+        # Пошук по адресі
+        if record.address and query in str(record.address).lower():
+            results.append(str(record))
+            continue
+
+    return "\n".join(results)
