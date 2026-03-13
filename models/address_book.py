@@ -80,6 +80,9 @@ class Birthday(Field):
             )
         super().__init__(date_obj)
 
+    def to_string(self) -> str:
+        return self.value.strftime(DATE_FORMAT)
+
 
 class Record:
     """Represents a contact record with various fields."""
@@ -96,20 +99,6 @@ class Record:
             raise ValueError("Phone already exists")
         self.phones.append(Phone(phone))
 
-    def remove_phone(self, phone: str) -> None:
-        phone_obj = self.find_phone(phone)
-        if phone_obj is None:
-            raise ValueError(f"Phone {phone} not found in this contact.")
-        self.phones.remove(phone_obj)
-
-    def edit_phone(self, old_phone: str, new_phone: str) -> None:
-        phone_obj = self.find_phone(old_phone)
-        if phone_obj is None:
-            raise ValueError(f"Phone {old_phone} not found in this contact.")
-        Phone(new_phone)  # Validate new phone first
-        self.remove_phone(old_phone)
-        self.add_phone(new_phone)
-
     def find_phone(self, phone: str) -> Phone | None:
         for p in self.phones:
             if p.value == phone:
@@ -123,20 +112,6 @@ class Record:
         if email in [e.value for e in self.emails]:
             raise ValueError("Email already exists")
         self.emails.append(Email(email))
-
-    def remove_email(self, email: str) -> None:
-        email_obj = self.find_email(email)
-        if email_obj is None:
-            raise ValueError(f"Email {email} not found in this contact.")
-        self.emails.remove(email_obj)
-
-    def edit_email(self, old_email: str, new_email: str) -> None:
-        email_obj = self.find_email(old_email)
-        if email_obj is None:
-            raise ValueError(f"Email {old_email} not found in this contact.")
-        Email(new_email)  # Валідація нового email
-        self.remove_email(old_email)
-        self.add_email(new_email)
 
     def find_email(self, email: str) -> Email | None:
         for e in self.emails:
