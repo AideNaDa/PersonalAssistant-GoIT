@@ -5,7 +5,7 @@ import re
 from models.address_book import (
     AddressBook,
     Record,
-    DATE_FORMAT,
+    DATE_FORMAT,h
     Birthday,
     Address,
     HEADER,
@@ -149,6 +149,45 @@ def find(args: list[str], book: AddressBook) -> str:
 
 
 @input_error
+def show_all(args: list[str], book: AddressBook) -> str:
+    """Display all contacts in a formatted table layout."""
+    
+    if not book.data:
+        return "Address book is empty."
+
+    n_w, p_w, e_w, a_w, b_w = 15, 15, 20, 20, 12
+    
+    header = (
+        f"{'Name':<{n_w}} | {'Phone':<{p_w}} | {'Email':<{e_w}} | "
+        f"{'Address':<{a_w}} | {'Birthday':<{b_w}}"
+    )
+    separator = "-" * len(header)
+    
+    result = [separator, header, separator]
+
+    for name in sorted(book.data.keys(), key=str.lower):
+        record = book.data[name]
+        
+        phones = ", ".join([p.value for p in record.phones]) if record.phones else "N/A"
+        emails = ", ".join([e.value for e in record.emails]) if record.emails else "N/A"
+        address = str(record.address) if record.address else "N/A"
+        birthday = record.birthday.value.strftime(DATE_FORMAT) if record.birthday else "N/A"
+
+        row = (
+            f"{name[:n_w-3] + '...' if len(name) > n_w else name:<{n_w}} | "
+            f"{phones[:p_w-3] + '...' if len(phones) > p_w else phones:<{p_w}} | "
+            f"{emails[:e_w-3] + '...' if len(emails) > e_w else emails:<{e_w}} | "
+            f"{address[:a_w-3] + '...' if len(address) > a_w else address:<{a_w}} | "
+            f"{birthday:<{b_w}}"
+        )
+        result.append(row)
+
+    result.append(separator)
+    result.append(f"Total contacts: {len(book.data)}")
+    
+    return "\n".join(result)
+
+@input_error
 def delete(args: list[str], book: AddressBook) -> str:
     if not args:
         raise ValueError("Provide a name.")
@@ -157,7 +196,6 @@ def delete(args: list[str], book: AddressBook) -> str:
     if not record:
         raise KeyError("Contact not found.")
 
-    # If there is only one argument, delete the contact entirely
     if not rest:
         del book.data[name]
         return f"Contact '{name}' deleted entirely."
