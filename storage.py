@@ -43,7 +43,6 @@ def load_data() -> tuple[AddressBook, NoteBook]:
                 notebook.add_note(Note.from_dict(note_data))
 
     except (FileNotFoundError, json.JSONDecodeError):
-        # If the file is missing or empty/corrupted
-        print("The data file was not found or is empty.")
+        pass
 
     return address_book, notebook
