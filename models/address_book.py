@@ -30,16 +30,29 @@ class Field:
         return str(self.value)
 
 
+class Name(Field):
+    """Contact name with basic validation."""
+
+    def __init__(self, value: str) -> None:
+        if len(value) > MAX_NAME_LENGTH:
+            raise ValueError(
+                f"Name must be at most {MAX_NAME_LENGTH} characters long."
+            )
+        super().__init__(value)
+
+
 class Phone(Field):
     """Phone number with regional code validation (+, digits, length 10-15)."""
 
     def __init__(self, value: str) -> None:
         normalized_value = self._normalize(value)
         digits_only = re.sub(r"\D", "", normalized_value)
-        
+
         if not (10 <= len(digits_only) <= 15):
-            raise ValueError("Phone number must contain between 10 and 15 digits.")
-            
+            raise ValueError(
+                "Phone number must contain between 10 and 15 digits."
+            )
+
         super().__init__(normalized_value)
 
     @staticmethod

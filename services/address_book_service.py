@@ -1,9 +1,10 @@
 from datetime import date, datetime, timedelta
-from typing import Optional, Callable
+from typing import Callable
 import re
 
 from models.address_book import (
     AddressBook,
+    Phone,
     Record,
     DATE_FORMAT,
     Birthday,
@@ -28,6 +29,7 @@ def input_error(func: Callable) -> Callable:
 
 
 def is_phone(val: str) -> bool:
+    """Checks if the value is a valid phone number (10-15 digits, ignoring non-digit characters)."""
     digits_only = re.sub(r"\D", "", val)
     return 10 <= len(digits_only) <= 15
 
@@ -64,14 +66,14 @@ def add(args: list[str], book: AddressBook) -> str:
 
     address_parts = []
     for arg in rest:
-       if is_phone(arg):
+        if is_phone(arg):
             # Check for duplicates
             norm_phone = Phone._normalize(arg)
             if any(p.value == norm_phone for p in record.phones):
                 print(f"Phone {arg} is already assigned to {name}.")
                 continue
             record.add_phone(arg)
-            
+
         elif is_email(arg):
             # Check for existing email
             if any(e.value == arg.lower() for e in record.emails):
@@ -154,7 +156,9 @@ def find(args: list[str], book: AddressBook) -> str:
             continue
 
         # Пошук по телефонах
-        if query_digits and any(query_digits in p.value for p in record.phones):
+        if query_digits and any(
+            query_digits in p.value for p in record.phones
+        ):
             results.append(str(record))
             continue
 
@@ -216,7 +220,7 @@ def delete(args: list[str], book: AddressBook) -> str:
     elif is_email(field):
         record.emails = [e for e in record.emails if e.value != field]
         return "Email deleted."
-    elif field == "birthday": 
+    elif field == "birthday":
         record.birthday = None
         return "Birthday deleted."
     elif field in ["address", "adress", "adres", "addres", "addr"]:
@@ -242,12 +246,12 @@ def edit(args: list[str], book: AddressBook) -> str:
         if is_phone(old_val) and is_phone(new_val):
             norm_old = Phone._normalize(old_val)
             norm_new = Phone._normalize(new_val)
-            
+
             if norm_old not in [p.value for p in record.phones]:
                 raise ValueError(
                     "Old phone number not found for this contact."
                 )
-            
+
             if norm_new in [p.value for p in record.phones]:
                 raise ValueError(
                     "New phone number already exists for this contact."
