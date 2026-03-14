@@ -4,10 +4,9 @@ from datetime import datetime
 from typing import Any
 
 MAX_NAME_LENGTH = 21
-PHONE_LENGTH = 10
 DATE_FORMAT = "%d-%m-%Y"
 NAME_COL = 21
-PHONE_COL = 13
+PHONE_COL = 15
 EMAIL_COL = 35
 BDAY_COL = 10
 ADDR_COL = 35
@@ -31,24 +30,24 @@ class Field:
         return str(self.value)
 
 
-class Name(Field):
-    """Contact name with basic validation."""
-
-    def __init__(self, value: str) -> None:
-        if len(value) > MAX_NAME_LENGTH:
-            raise ValueError(
-                f"Name must be at most {MAX_NAME_LENGTH} characters long."
-            )
-        super().__init__(value)
-
-
 class Phone(Field):
-    """Phone number with basic validation."""
+    """Phone number with regional code validation (+, digits, length 10-15)."""
 
     def __init__(self, value: str) -> None:
-        if not value.isdigit() or len(value) != PHONE_LENGTH:
-            raise ValueError("Phone number must be a 10-digit number.")
-        super().__init__(value)
+        normalized_value = self._normalize(value)
+        digits_only = re.sub(r"\D", "", normalized_value)
+        
+        if not (10 <= len(digits_only) <= 15):
+            raise ValueError("Phone number must contain between 10 and 15 digits.")
+            
+        super().__init__(normalized_value)
+
+    @staticmethod
+    def _normalize(value: str) -> str:
+        """Deletes all symbols, leaving only + and digits"""
+        value = value.strip()
+        normalized = re.sub(r"(?<!^)\+|[^\d+]", "", value)
+        return normalized
 
 
 class Email(Field):
@@ -100,8 +99,9 @@ class Record:
         self.phones.append(Phone(phone))
 
     def find_phone(self, phone: str) -> Phone | None:
+        normalized_search = Phone._normalize(phone)
         for p in self.phones:
-            if p.value == phone:
+            if p.value == normalized_search:
                 return p
         return None
 
