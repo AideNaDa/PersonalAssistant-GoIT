@@ -28,14 +28,17 @@ def input_error(func: Callable) -> Callable:
 
 
 def is_phone(val: str) -> bool:
+    """Checks if the value is a valid phone number (10 digits)."""
     return bool(re.fullmatch(r"\d{10}", val))
 
 
 def is_email(val: str) -> bool:
+    """Checks if the value is a valid email address."""
     return bool(re.match(r"[^@]+@[^@]+\.[^@]+", val))
 
 
 def is_date(val: str) -> bool:
+    """Checks if the value is a valid date in the expected format."""
     try:
         datetime.strptime(val, DATE_FORMAT)
         return True
@@ -45,6 +48,8 @@ def is_date(val: str) -> bool:
 
 @input_error
 def add(args: list[str], book: AddressBook) -> str:
+    """Adds a new contact or updates an existing one with provided details. Usage: add <name> [phone/email/birthday/address]. Enclose address in quotes if it contains spaces."""
+
     if len(args) < 1:
         raise ValueError("Provide at least a name.")
 
@@ -91,6 +96,8 @@ def _get_next_birthday(birthday_date: date, today: date) -> date:
 
 @input_error
 def birthdays(args: list[str], book: AddressBook) -> str:
+    """Lists contacts with birthdays in the next N days. Usage: birthdays [N]. If N is not provided, defaults to 7 days."""
+
     days = 7
 
     if args:
@@ -125,6 +132,7 @@ def birthdays(args: list[str], book: AddressBook) -> str:
 
 def find(args: list[str], book: AddressBook) -> str:
     """Search contacts by partial match in name, phone, email or address."""
+
     query = args[0].lower()
     results = []
     for record in book.data.values():
@@ -170,6 +178,8 @@ def show_all(book: AddressBook) -> str:
 
 @input_error
 def delete(args: list[str], book: AddressBook) -> str:
+    """Deletes a contact entirely or specific fields from a contact. Usage: del <name> [field]. If no field is provided, the entire contact is deleted."""
+
     if not args:
         raise ValueError("Provide a name.")
     name, *rest = args
@@ -204,6 +214,8 @@ def delete(args: list[str], book: AddressBook) -> str:
 
 @input_error
 def edit(args: list[str], book: AddressBook) -> str:
+    """Edits a contact's phone, email, birthday or address. Usage: edit <name> <old_value> <new_value> for phones and emails, edit <name> <new_birthday> for birthday, edit <name> <new_address> for address."""
+
     if len(args) < 2:
         raise ValueError("Provide name and new value(s).")
     name, *rest = args

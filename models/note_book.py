@@ -15,6 +15,8 @@ SEPARATOR_NOTE = "-" * len(HEADER_NOTE)
 
 
 class Title(Field):
+    """Note title with length validation."""
+
     def __init__(self, value: str) -> None:
         if len(value) > MAX_TITLE_LENGTH:
             raise ValueError(
@@ -29,6 +31,7 @@ class Body(Field):
 
 
 class Tag(Field):
+    """Note tag with basic equality and hashing for set operations."""
 
     def __eq__(self, other):
         return isinstance(other, Tag) and self.value == other.value
@@ -38,6 +41,8 @@ class Tag(Field):
 
 
 class Note:
+    """Note with title, text, and tags."""
+
     def __init__(self, title: str, text: str) -> None:
         self.title = Title(title)
         self.text = Body(text)
@@ -102,6 +107,8 @@ class Note:
 
 
 class NoteBook(UserDict):
+    """Container for notes."""
+
     def add_note(self, note: Note):
         if self.find(note.title.value):
             raise ValueError("Note with this title is already exists")

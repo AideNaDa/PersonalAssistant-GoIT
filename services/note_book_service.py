@@ -4,6 +4,8 @@ from services.address_book_service import input_error
 
 @input_error
 def add_note(args: list[str], notebook: NoteBook) -> str:
+    """Adds a new note with optional tags. Usage: add-note <title> <text> [tag1 tag2 ...]. Enclose text in quotes if it contains spaces."""
+
     if len(args) < 2:
         raise ValueError("Provide title and text. Enclose text in quotes.")
     title, text, *tags = args
@@ -17,6 +19,8 @@ def add_note(args: list[str], notebook: NoteBook) -> str:
 
 @input_error
 def edit_note(args: list[str], notebook: NoteBook) -> str:
+    """Edits a note's text or replaces a tag. For text: edit-note <title> <new text>. For tags: edit-note <title> <old tag> <new tag>."""
+
     if len(args) < 2:
         raise ValueError("Provide title and new text or tags.")
     title, *rest = args
@@ -39,6 +43,8 @@ def edit_note(args: list[str], notebook: NoteBook) -> str:
 
 @input_error
 def find_note(args: list[str], notebook: NoteBook) -> str:
+    """Finds a note by title or tags. If multiple tags are provided, all must match."""
+
     if not args:
         raise ValueError("Provide a query.")
     note = notebook.find(args[0])
@@ -56,6 +62,8 @@ def find_note(args: list[str], notebook: NoteBook) -> str:
 
 
 def show_all_notes(notebook: NoteBook) -> str:
+    """Returns a formatted string of all notes in the notebook."""
+
     if not notebook.data:
         return "Notebook is empty."
 
@@ -72,6 +80,8 @@ def show_all_notes(notebook: NoteBook) -> str:
 
 @input_error
 def add_tag(args: list[str], notebook: NoteBook) -> str:
+    """Adds one or more tags to an existing note. Usage: add-tag <title> <tag1> [tag2 ...]."""
+
     if len(args) < 2:
         raise ValueError("Provide title and at least one tag.")
     title, *tags = args
@@ -85,6 +95,8 @@ def add_tag(args: list[str], notebook: NoteBook) -> str:
 
 @input_error
 def delete_note(args: list[str], notebook: NoteBook) -> str:
+    """Deletes a note entirely or specific tags from a note. Usage: del-note <title> [tag1 tag2 ...]. If no tags are provided, the entire note is deleted."""
+
     if not args:
         raise ValueError("Provide title.")
     title, *tags = args

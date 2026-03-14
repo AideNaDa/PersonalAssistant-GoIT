@@ -29,6 +29,7 @@ COMMANDS = [
 
 def suggest_command(user_input: str) -> str:
     """Searches for the command that is most similar in spelling."""
+
     # n=1 means we want to find the single best match
     # cutoff=0.5 is the sensitivity threshold (ranging from 0 to 1). 0.5 is optimal for errors of 1–2 letters
     matches = get_close_matches(user_input, COMMANDS, n=1, cutoff=0.5)
@@ -40,6 +41,8 @@ def suggest_command(user_input: str) -> str:
 
 
 def parse_input(user_input):
+    """Parses the user input into a command and its arguments."""
+
     try:
         parts = shlex.split(user_input)
     except ValueError:
@@ -50,6 +53,8 @@ def parse_input(user_input):
 
 # helper function for printing instructions
 def display_instruction() -> str:
+    """Returns a formatted string with instructions for using the bot."""
+
     help_text = f"""
 {'='*100}
             ASSISTANT BOT COMMAND GUIDE  
@@ -88,6 +93,8 @@ def display_instruction() -> str:
 
 
 def run_cli(address_book, notebook):
+    """Main loop for the command-line interface."""
+
     print("Assistant bot started. Type 'hello' to start or 'exit' to quit.")
     while True:
         try:

@@ -6,6 +6,8 @@ FILENAME = "data.json"
 
 
 def save_data(address_book: AddressBook, notebook: NoteBook) -> None:
+    """Saves both address book and notebook data to a JSON file."""
+
     combined_data = {
         "contacts": {
             name: record.to_dict()
@@ -21,6 +23,8 @@ def save_data(address_book: AddressBook, notebook: NoteBook) -> None:
 
 
 def load_data() -> tuple[AddressBook, NoteBook]:
+    """Loads data from a JSON file and returns an AddressBook and NoteBook instance."""
+
     notebook = NoteBook()
     address_book = AddressBook()
 
