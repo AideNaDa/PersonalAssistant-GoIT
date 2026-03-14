@@ -18,11 +18,11 @@ def input_error(func: Callable) -> Callable:
         try:
             return func(*args, **kwargs)
         except ValueError as e:
-            return f"❌ Error: {e}"
+            return f"Error: {e}"
         except KeyError:
-            return "❌ Error: Contact not found."
+            return "Error: Contact not found."
         except IndexError:
-            return "❌ Error: Please provide all necessary arguments."
+            return "Error: Please provide all necessary arguments."
 
     return inner
 
@@ -135,6 +135,7 @@ def find(args: list[str], book: AddressBook) -> str:
 
     query = args[0].lower()
     results = []
+    msg = [SEPARATOR, HEADER, SEPARATOR]
     for record in book.data.values():
         if query in str(record.name).lower():
             results.append(str(record))
@@ -155,7 +156,11 @@ def find(args: list[str], book: AddressBook) -> str:
             results.append(str(record))
             continue
 
-    return "\n".join(results)
+    if not results:
+        return "No matching contacts found."
+
+    msg.extend(results)
+    return "\n".join(msg)
 
 
 @input_error
@@ -198,14 +203,10 @@ def delete(args: list[str], book: AddressBook) -> str:
     elif is_email(field):
         record.emails = [e for e in record.emails if e.value != field]
         return "Email deleted."
-    elif (
-        is_date(field)
-        and record.birthday
-        and record.birthday.to_string() == field
-    ):
+    elif field == "birthday":
         record.birthday = None
         return "Birthday deleted."
-    elif record.address and record.address.value == field:
+    elif field == "address":
         record.address = None
         return "Address deleted."
     else:
@@ -226,10 +227,26 @@ def edit(args: list[str], book: AddressBook) -> str:
     if len(rest) == 2:
         old_val, new_val = rest
         if is_phone(old_val) and is_phone(new_val):
+            if old_val not in [p.value for p in record.phones]:
+                raise ValueError(
+                    "Old phone number not found for this contact."
+                )
+            if new_val in [p.value for p in record.phones]:
+                raise ValueError(
+                    "New phone number already exists for this contact."
+                )
             record.phones = [p for p in record.phones if p.value != old_val]
             record.add_phone(new_val)
             return "Phone replaced."
         elif is_email(old_val) and is_email(new_val):
+            if old_val not in [e.value for e in record.emails]:
+                raise ValueError(
+                    "Old email address not found for this contact."
+                )
+            if new_val in [e.value for e in record.emails]:
+                raise ValueError(
+                    "New email address already exists for this contact."
+                )
             record.emails = [e for e in record.emails if e.value != old_val]
             record.add_email(new_val)
             return "Email replaced."

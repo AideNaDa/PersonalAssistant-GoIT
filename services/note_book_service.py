@@ -48,6 +48,7 @@ def find_note(args: list[str], notebook: NoteBook) -> str:
     if not args:
         raise ValueError("Provide a query.")
     note = notebook.find(args[0])
+    msg = [SEPARATOR_NOTE, HEADER_NOTE, SEPARATOR_NOTE]
     if note:
         return str(note)
     else:
@@ -57,8 +58,12 @@ def find_note(args: list[str], notebook: NoteBook) -> str:
             tags_match = all(arg in tags_lower for arg in args)
             if tags_match:
                 results.append(str(note))
+    if not results:
+        return "No matches found."
 
-    return "\n".join(results) if results else "No matches found."
+    msg.extend(results)
+
+    return "\n".join(msg)
 
 
 def show_all_notes(notebook: NoteBook) -> str:

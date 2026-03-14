@@ -13,7 +13,7 @@ The bot supports managing contacts and text notes. Command parameters are indica
 | **`add`** | `[name]` `<phone> <birthday> <address> <email>` | Creates a new contact. Additional parameters (birthday, address, email) are optional. **The order of the arguments does not matter.** |
 | **`birthdays`** | `[num]` | Displays a list of contacts who have a birthday coming up in the specified number of days (`num`). |
 | **`del`** | `[name]` | Deletes the contact and all associated data completely. |
-| **`del`** | `[name] [phone]` or `[email]` or `[birthday]` or `[address]` | Deletes a specific field for the selected contact (e.g., only the email or just one of the phone numbers). |
+| **`del`** | `[name] [phone]` or `[email]` or `birthday` or `address` | Deletes a specific field for the selected contact (e.g., only the email or just one of the phone numbers). |
 | **`edit`** | `[name] [old_phone] [new_phone]`<br>or `[old_email] [new_email]`<br>or `[new_birthday]`<br>or `[new_address]` | Edits contact details. Overwrites the birthday or address, or replaces an old phone/email with a new one. |
 | **`find`** | `[query]` | Displays a contact card. Search works by any match: name, phone, address, email, or birthday. |
 | **`show-all`** | *- no arguments -* | Displays a list of all saved contacts. |
