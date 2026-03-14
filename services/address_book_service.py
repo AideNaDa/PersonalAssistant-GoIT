@@ -28,8 +28,8 @@ def input_error(func: Callable) -> Callable:
 
 
 def is_phone(val: str) -> bool:
-    """Checks if the value is a valid phone number (10 digits)."""
-    return bool(re.fullmatch(r"\d{10}", val))
+    digits_only = re.sub(r"\D", "", val)
+    return 10 <= len(digits_only) <= 15
 
 
 def is_email(val: str) -> bool:
@@ -64,9 +64,19 @@ def add(args: list[str], book: AddressBook) -> str:
 
     address_parts = []
     for arg in rest:
-        if is_phone(arg):
+       if is_phone(arg):
+            # Check for duplicates
+            norm_phone = Phone._normalize(arg)
+            if any(p.value == norm_phone for p in record.phones):
+                print(f"Phone {arg} is already assigned to {name}.")
+                continue
             record.add_phone(arg)
+            
         elif is_email(arg):
+            # Check for existing email
+            if any(e.value == arg.lower() for e in record.emails):
+                print(f"⚠️ Email {arg} is already assigned to {name}.")
+                continue
             record.add_email(arg)
         elif is_date(arg):
             record.birthday = Birthday(arg)
@@ -134,6 +144,8 @@ def find(args: list[str], book: AddressBook) -> str:
     """Search contacts by partial match in name, phone, email or address."""
 
     query = args[0].lower()
+
+    query_digits = re.sub(r"\D", "", query)
     results = []
     msg = [SEPARATOR, HEADER, SEPARATOR]
     for record in book.data.values():
@@ -142,7 +154,7 @@ def find(args: list[str], book: AddressBook) -> str:
             continue
 
         # Пошук по телефонах
-        if any(query in str(phone) for phone in record.phones):
+        if query_digits and any(query_digits in p.value for p in record.phones):
             results.append(str(record))
             continue
 
@@ -198,15 +210,16 @@ def delete(args: list[str], book: AddressBook) -> str:
 
     field = rest[0]
     if is_phone(field):
-        record.phones = [p for p in record.phones if p.value != field]
+        normalized_f = Phone._normalize(field)
+        record.phones = [p for p in record.phones if p.value != normalized_f]
         return "Phone deleted."
     elif is_email(field):
         record.emails = [e for e in record.emails if e.value != field]
         return "Email deleted."
-    elif field == "birthday":
+    elif field == "birthday": 
         record.birthday = None
         return "Birthday deleted."
-    elif field == "address":
+    elif field in ["address", "adress", "adres", "addres", "addr"]:
         record.address = None
         return "Address deleted."
     else:
@@ -227,15 +240,19 @@ def edit(args: list[str], book: AddressBook) -> str:
     if len(rest) == 2:
         old_val, new_val = rest
         if is_phone(old_val) and is_phone(new_val):
-            if old_val not in [p.value for p in record.phones]:
+            norm_old = Phone._normalize(old_val)
+            norm_new = Phone._normalize(new_val)
+            
+            if norm_old not in [p.value for p in record.phones]:
                 raise ValueError(
                     "Old phone number not found for this contact."
                 )
-            if new_val in [p.value for p in record.phones]:
+            
+            if norm_new in [p.value for p in record.phones]:
                 raise ValueError(
                     "New phone number already exists for this contact."
                 )
-            record.phones = [p for p in record.phones if p.value != old_val]
+            record.phones = [p for p in record.phones if p.value != norm_old]
             record.add_phone(new_val)
             return "Phone replaced."
         elif is_email(old_val) and is_email(new_val):
