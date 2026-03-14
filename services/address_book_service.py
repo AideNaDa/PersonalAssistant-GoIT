@@ -5,11 +5,11 @@ import re
 from models.address_book import (
     AddressBook,
     Record,
-    DATE_FORMAT,h
+    DATE_FORMAT,
     Birthday,
     Address,
     HEADER,
-    SEPORATOR,
+    SEPARATOR,
 )
 
 
@@ -102,7 +102,8 @@ def birthdays(args: list[str], book: AddressBook) -> str:
             raise ValueError("Please provide a valid integer for days.")
 
     today = date.today()
-    result = [SEPORATOR, HEADER, SEPORATOR]
+    msg = [SEPARATOR, HEADER, SEPARATOR]
+    result = []
 
     for record in book.data.values():
         if record.birthday is None:
@@ -117,8 +118,9 @@ def birthdays(args: list[str], book: AddressBook) -> str:
 
     if not result:
         return f"No birthdays in the next {days} days."
+    msg.extend(result)
 
-    return "\n".join(result)
+    return "\n".join(msg)
 
 
 def find(args: list[str], book: AddressBook) -> str:
@@ -149,43 +151,22 @@ def find(args: list[str], book: AddressBook) -> str:
 
 
 @input_error
-def show_all(args: list[str], book: AddressBook) -> str:
+def show_all(book: AddressBook) -> str:
     """Display all contacts in a formatted table layout."""
-    
+
     if not book.data:
         return "Address book is empty."
 
-    n_w, p_w, e_w, a_w, b_w = 15, 15, 20, 20, 12
-    
-    header = (
-        f"{'Name':<{n_w}} | {'Phone':<{p_w}} | {'Email':<{e_w}} | "
-        f"{'Address':<{a_w}} | {'Birthday':<{b_w}}"
-    )
-    separator = "-" * len(header)
-    
-    result = [separator, header, separator]
+    result = [SEPARATOR, HEADER, SEPARATOR]
 
     for name in sorted(book.data.keys(), key=str.lower):
         record = book.data[name]
-        
-        phones = ", ".join([p.value for p in record.phones]) if record.phones else "N/A"
-        emails = ", ".join([e.value for e in record.emails]) if record.emails else "N/A"
-        address = str(record.address) if record.address else "N/A"
-        birthday = record.birthday.value.strftime(DATE_FORMAT) if record.birthday else "N/A"
 
-        row = (
-            f"{name[:n_w-3] + '...' if len(name) > n_w else name:<{n_w}} | "
-            f"{phones[:p_w-3] + '...' if len(phones) > p_w else phones:<{p_w}} | "
-            f"{emails[:e_w-3] + '...' if len(emails) > e_w else emails:<{e_w}} | "
-            f"{address[:a_w-3] + '...' if len(address) > a_w else address:<{a_w}} | "
-            f"{birthday:<{b_w}}"
-        )
-        result.append(row)
+        result.append(str(record))
 
-    result.append(separator)
     result.append(f"Total contacts: {len(book.data)}")
-    
     return "\n".join(result)
+
 
 @input_error
 def delete(args: list[str], book: AddressBook) -> str:
@@ -197,7 +178,7 @@ def delete(args: list[str], book: AddressBook) -> str:
         raise KeyError("Contact not found.")
 
     if not rest:
-        del book.data[name]
+        book.delete(name)
         return f"Contact '{name}' deleted entirely."
 
     field = rest[0]

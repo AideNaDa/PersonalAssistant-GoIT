@@ -1,7 +1,42 @@
 from services.address_book_service import *
 from services.note_book_service import *
 from storage import *
+from difflib import get_close_matches
+
 import shlex
+
+# List of all commands available in your bot
+COMMANDS = [
+    "hello",
+    "close",
+    "exit",
+    "help",
+    "?",
+    "add",
+    "birthdays",
+    "del",
+    "edit",
+    "find",
+    "show-all",
+    "add-note",
+    "add-tag",
+    "del-note",
+    "edit-note",
+    "find-note",
+    "show-all-note",
+]
+
+
+def suggest_command(user_input: str) -> str:
+    """Searches for the command that is most similar in spelling."""
+    # n=1 means we want to find the single best match
+    # cutoff=0.5 is the sensitivity threshold (ranging from 0 to 1). 0.5 is optimal for errors of 1–2 letters
+    matches = get_close_matches(user_input, COMMANDS, n=1, cutoff=0.5)
+
+    if matches:
+        return f"Unknown command. Did you mean: '{matches[0]}'?"
+    else:
+        return "Unknown command. Type 'help' to view the list of commands."
 
 
 def parse_input(user_input):
@@ -13,7 +48,7 @@ def parse_input(user_input):
     return cmd, args
 
 
-# вспомагательная функция вывода инструкции
+# helper function for printing instructions
 def display_instruction() -> str:
     help_text = f"""
 {'='*100}
@@ -70,11 +105,9 @@ def run_cli(address_book, notebook):
                 continue
             case "close":
                 print("Good bye!")
-                save_data(address_book, notebook)
                 break
             case "exit":
                 print("Good bye!")
-                save_data(address_book, notebook)
                 break
             case "hello":
                 print("Hello, enter '?' or 'help' for instruction")
@@ -94,6 +127,8 @@ def run_cli(address_book, notebook):
                 print(edit(args, address_book))
             case "find":
                 print(find(args, address_book))
+            case "show-all":
+                print(show_all(address_book))
 
             # notebook
             case "add-note":
@@ -101,10 +136,13 @@ def run_cli(address_book, notebook):
             case "add-tag":
                 print(add_tag(args, notebook))
             case "del-note":
-                print(del_note(args, notebook))
+                print(delete_note(args, notebook))
             case "edit-note":
                 print(edit_note(args, notebook))
             case "find-note":
                 print(find_note(args, notebook))
             case "show-all-note":
                 print(show_all_notes(notebook))
+
+            case _:
+                print(suggest_command(command))

@@ -1,4 +1,4 @@
-from models.note_book import NoteBook, Note, Tag
+from models.note_book import NoteBook, Note, Tag, SEPARATOR_NOTE, HEADER_NOTE
 from services.address_book_service import input_error
 
 
@@ -57,9 +57,17 @@ def find_note(args: list[str], notebook: NoteBook) -> str:
 
 def show_all_notes(notebook: NoteBook) -> str:
     if not notebook.data:
-        return "Notebook is emty."
-    results = [str(note) for note in notebook.data.values()]
-    return "\n".join(results)
+        return "Notebook is empty."
+
+    result = [SEPARATOR_NOTE, HEADER_NOTE, SEPARATOR_NOTE]
+
+    for title in sorted(notebook.data.keys(), key=str.lower):
+        note = notebook.data[title]
+
+        result.append(str(note))
+
+    result.append(f"Total notes: {len(notebook.data)}")
+    return "\n".join(result)
 
 
 @input_error
@@ -76,7 +84,7 @@ def add_tag(args: list[str], notebook: NoteBook) -> str:
 
 
 @input_error
-def del_note(args: list[str], notebook: NoteBook) -> str:
+def delete_note(args: list[str], notebook: NoteBook) -> str:
     if not args:
         raise ValueError("Provide title.")
     title, *tags = args
@@ -85,7 +93,7 @@ def del_note(args: list[str], notebook: NoteBook) -> str:
         raise KeyError("Note not found.")
 
     if not tags:
-        del notebook.data[title]
+        del notebook.data[title.lower()]
         return f"Note '{title}' deleted."
 
     for tag in tags:

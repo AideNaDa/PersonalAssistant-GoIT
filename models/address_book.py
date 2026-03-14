@@ -18,7 +18,7 @@ HEADER = (
     f"| {"Birthday":<{BDAY_COL}} "
     f"| {"Address":<{ADDR_COL}}"
 )
-SEPORATOR = "-" * len(HEADER)
+SEPARATOR = "-" * len(HEADER)
 
 
 class Field:
@@ -178,7 +178,7 @@ class Record:
             )
 
             lines.append(line)
-        lines.append(SEPORATOR)
+        lines.append(SEPARATOR)
         return "\n".join(lines)
 
 

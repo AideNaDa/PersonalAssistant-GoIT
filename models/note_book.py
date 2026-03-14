@@ -3,6 +3,15 @@ from models.address_book import Field
 import textwrap
 
 MAX_TITLE_LENGTH = 26
+TITLE_COL = 26
+TEXT_COL = 60
+TAGS_COL = 25
+HEADER_NOTE = (
+    f"{'Title':<{TITLE_COL}} "
+    f"| {'Text':<{TEXT_COL}} "
+    f"| {'Tags':<{TAGS_COL}}"
+)
+SEPARATOR_NOTE = "-" * len(HEADER_NOTE)
 
 
 class Title(Field):
@@ -21,7 +30,11 @@ class Body(Field):
 
 class Tag(Field):
 
-    pass
+    def __eq__(self, other):
+        return isinstance(other, Tag) and self.value == other.value
+
+    def __hash__(self):
+        return hash(self.value)
 
 
 class Note:
@@ -56,25 +69,36 @@ class Note:
         return note
 
     def __str__(self):
-        tags_str = (
-            ", ".join(t.value for t in self.tags) if self.tags else "No tags"
+
+        tags = (
+            ", ".join(tag.value for tag in self.tags)
+            if self.tags
+            else "No tags"
         )
 
-        wrapped = textwrap.wrap(self.text.value, width=58)
+        text_lines = textwrap.wrap(self.text.value, width=TEXT_COL) or [""]
+        tag_lines = textwrap.wrap(tags, width=TAGS_COL) or [""]
+
+        rows = max(len(text_lines), len(tag_lines), 1)
 
         lines = []
-        for i, line in enumerate(wrapped):
-            if i == 0:
-                lines.append(f"Title: {self.title.value:<26} | Text: {line}")
-            else:
-                lines.append(f"{'':<33} | {line}")
 
-        sep_bolt = "=" * 100
-        sep = "-" * 100
+        for i in range(rows):
 
-        body = "\n".join(lines)
+            title_part = self.title.value if i == 0 else ""
+            text_part = text_lines[i] if i < len(text_lines) else ""
+            tag_part = tag_lines[i] if i < len(tag_lines) else ""
 
-        return "\n".join([sep_bolt, body, sep, tags_str, sep_bolt])
+            line = (
+                f"{title_part:<{TITLE_COL}} "
+                f"| {text_part:<{TEXT_COL}} "
+                f"| {tag_part:<{TAGS_COL}}"
+            )
+
+            lines.append(line)
+        lines.append(SEPARATOR_NOTE)
+
+        return "\n".join(lines)
 
 
 class NoteBook(UserDict):
