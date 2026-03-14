@@ -1,5 +1,85 @@
 # PersonalAssistant-GoIT
 
+
+## Installation and Run
+
+Follow these steps to download and run the assistant bot.
+
+### 1. Download the project
+
+Click **Code → Download ZIP** on the repository page and unzip the archive.
+
+Or clone the repository:
+
+```bash
+git clone https://github.com/AideNaDa/PersonalAssistant-GoIT.git
+```
+
+---
+
+### 2. Go to the project folder
+
+```bash
+cd PersonalAssistant-GoIT
+```
+
+If you downloaded the ZIP file:
+
+```bash
+cd PersonalAssistant-GoIT-main
+```
+
+---
+
+### 3. Run the program
+
+Start the assistant bot using:
+
+```bash
+python3 -m main
+```
+
+or
+
+```bash
+python3 main.py
+```
+
+---
+
+### 4. Start using the assistant
+
+After launch you will see:
+
+```
+Assistant bot started. Type 'hello' to start or 'exit' to quit.
+```
+
+Example commands:
+
+```
+hello
+add John 1234567890
+add-note todo "Buy milk" shopping
+show-all
+show-all-note
+exit
+```
+
+---
+
+### Data Storage
+
+All contacts and notes are saved automatically to the file:
+
+```
+data.json
+```
+
+The file will be created automatically after the first run.
+
+
+
 ## Commands Usage
 
 The bot supports managing contacts and text notes. Command parameters are indicated in brackets `[ ]`. 
@@ -33,4 +113,3 @@ The bot supports managing contacts and text notes. Command parameters are indica
 | **`show-all-note`** | *- no arguments -* | Displays a list of all saved notes. |
 
 > **Note:** Mandatory arguments are enclosed in `[like this]`, while optional ones are in `<like this>`.
-
