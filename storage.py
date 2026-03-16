@@ -16,6 +16,7 @@ def save_data(address_book: AddressBook, notebook: NoteBook) -> None:
         "notes": {
             title: note.to_dict() for title, note in notebook.data.items()
         },
+        "strict_syntax": address_book.syntax_strict,
     }
 
     with open(FILENAME, "w", encoding="utf-8") as f:
@@ -41,6 +42,9 @@ def load_data() -> tuple[AddressBook, NoteBook]:
             notes = full_data.get("notes", {})
             for note_data in notes.values():
                 notebook.add_note(Note.from_dict(note_data))
+
+            # Uploading strict syntax setting
+            address_book.syntax_strict = full_data.get("strict_syntax", False)
 
     except (FileNotFoundError, json.JSONDecodeError):
         # If the file is missing or empty/corrupted

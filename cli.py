@@ -137,13 +137,13 @@ def display_instruction() -> str:
 def run_cli(address_book, notebook):
     """Main loop for the command-line interface."""
 
+    if address_book.syntax_strict:
+        print("Strict syntax mode is ON.")
+    else:
+        print("Strict syntax mode is OFF.")
     print("Assistant bot started. Type 'hello' to start or 'exit' to quit.")
     while True:
         try:
-            if address_book.syntax_strict:
-                print("Strict syntax mode is ON.")
-            else:
-                print("Strict syntax mode is OFF.")
             user_input = input("Enter a command: ")
             if not user_input.strip():
                 continue
@@ -170,15 +170,14 @@ def run_cli(address_book, notebook):
             case "?":
                 print(display_instruction())
             case "syntax-strict":
-                if not args or args[0].lower() not in ("on", "off"):
+                if not args or args[0]["value"].lower() not in ("on", "off"):
                     print("Usage: syntax-strict on/off")
                     continue
-                
 
-                if args[0].lower() == "on":
+                if args[0]["value"].lower() == "on":
                     address_book.syntax_strict = True
                     print("Strict syntax mode enabled.")
-                elif args[0].lower() == "off":
+                elif args[0]["value"].lower() == "off":
                     address_book.syntax_strict = False
                     print("Strict syntax mode disabled.")
                 else:

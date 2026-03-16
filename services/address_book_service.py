@@ -91,6 +91,7 @@ def add(args: list[str], book: AddressBook) -> str:
     return msg
 
 
+@input_error
 def add_strict(args: list[dict], book: AddressBook) -> str:
     """Strict mode add command."""
     if not args:
@@ -177,6 +178,7 @@ def birthdays(args: list[str], book: AddressBook) -> str:
     return "\n".join(msg)
 
 
+@input_error
 def find(args: list[str], book: AddressBook) -> str:
     """Search contacts by partial match in name, phone, email or address."""
 
@@ -322,6 +324,7 @@ def edit(args: list[str], book: AddressBook) -> str:
     return "Invalid edit format."
 
 
+@input_error
 def edit_strict(args: list[dict], book: AddressBook) -> str:
     """Strict mode edit command."""
 
@@ -386,4 +389,3 @@ def edit_strict(args: list[dict], book: AddressBook) -> str:
             return "Address updated."
 
     return "Invalid edit format."
-    
