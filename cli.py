@@ -1,6 +1,19 @@
-from services.address_book_service import *
-from services.note_book_service import *
-from storage import *
+from services.address_book_service import (
+    add,
+    birthdays,
+    delete,
+    edit,
+    find,
+    show_all,
+)
+from services.note_book_service import (
+    add_note,
+    add_tag,
+    delete_note,
+    edit_note,
+    find_note,
+    show_all_notes,
+)
 from difflib import get_close_matches
 
 import shlex
