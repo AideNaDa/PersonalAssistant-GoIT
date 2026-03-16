@@ -33,16 +33,41 @@ cd PersonalAssistant-GoIT-main
 
 ### 3. Run the program
 
+**Method 1** — Run directly from the project folder
+
 Start the assistant bot using:
 
-```bash
+```
 python3 -m main
 ```
 
 or
 
-```bash
+```
 python3 main.py
+```
+
+
+**Method 2** — Install as a Python package (recommended)
+
+You can install the project as a Python package and run it from any location in your system.
+
+Install the package
+
+```
+pip install .
+```
+
+For development mode:
+
+```
+pip install -e .
+```
+
+After installation you can start the assistant from any directory:
+
+```
+assistant-bot
 ```
 
 ---
@@ -78,6 +103,37 @@ data.json
 
 The file will be created automatically after the first run.
 
+## Syntax Modes
+The assistant supports two command parsing modes.
+
+### 1. Default Mode (Automatic)
+By default, the assistant automatically detects the type of each argument using pattern matching. The order of arguments **does not matter**.
+
+**Example:**
+`add John 1234567890 john@mail.com 12-05-1990 New York Wall Street 12`
+
+**Automatic Recognition Logic:**
+* **Phone numbers:** Exactly 10 digits.
+* **Email addresses:** Text matching standard email format.
+* **Birthdays:** Date format `DD-MM-YYYY`.
+* **Address:** Any remaining text that doesn't match the above patterns.
+
+---
+
+### 2. Strict Mode
+Strict parsing mode allows for precise data entry using quotes. It can be toggled with the following commands:
+* `syntax-strict on` — Enable strict mode.
+* `syntax-strict off` — Disable strict mode (return to Default).
+
+**Rules in Strict Mode:**
+1.  **Contact Name:** The **first** quoted argument is always treated as the name.
+2.  **Address:** The **first unrecognized** argument (usually the second quoted block) is treated as the address.
+3.  **Other Data:** Phone, email, and birthday are recognized **only** if they strictly match their respective patterns.
+4.  **Validation:** Any arguments that do not match known patterns and are not the name/address are **ignored**.
+
+**Valid Examples:**
+* `add "John Smith" "New York, Wall Street 12" 1234567890 john@mail.com 12-05-1990`
+* `add "John Smith" 1234567890 john@mail.com 12-05-1990 "New York, Wall Street 12"`
 
 
 ## Commands Usage
