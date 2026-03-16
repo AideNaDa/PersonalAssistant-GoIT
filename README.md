@@ -37,11 +37,15 @@ cd PersonalAssistant-GoIT-main
 
 Start the assistant bot using:
 
-```python3 -m main```
+```
+python3 -m main
+```
 
 or
 
-```python3 main.py```
+```
+python3 main.py
+```
 
 
 **Method 2** — Install as a Python package (recommended)
@@ -49,15 +53,22 @@ or
 You can install the project as a Python package and run it from any location in your system.
 
 Install the package
-```pip install .```
+
+```
+pip install .
+```
 
 For development mode:
 
-```pip install -e .```
+```
+pip install -e .
+```
 
 After installation you can start the assistant from any directory:
 
-```assistant-bot```
+```
+assistant-bot
+```
 
 ---
 
