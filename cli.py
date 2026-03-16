@@ -1,3 +1,5 @@
+from unittest import case
+
 from services.address_book_service import (
     add,
     add_strict,
@@ -56,14 +58,34 @@ def suggest_command(user_input: str) -> str:
 
 
 def parse_input(user_input):
-    """Parses the user input into a command and its arguments."""
-
     try:
-        parts = shlex.split(user_input)
+        # Створюємо лексер, який розпізнає лапки
+        lexer = shlex.shlex(user_input, posix=True)
+        lexer.whitespace_split = True
+        lexer.commenters = ""  # щоб не ігнорував символи після #
+
+        tokens = []
+        while True:
+            token = lexer.get_token()
+            if not token:
+                break
+            # Перевіряємо, чи був токен у лапках у вихідному рядку
+            # shlex прибирає лапки, але ми можемо перевірити стан лексера
+            was_quoted = (
+                user_input.find(f'"{token}"') != -1
+                or user_input.find(f"'{token}'") != -1
+            )
+
+            tokens.append({"value": token, "quoted": was_quoted})
+
+        if not tokens:
+            return None, []
+
+        cmd = tokens[0]["value"].lower()
+        args = tokens[1:]  # повертаємо список словників
+        return cmd, args
     except ValueError:
         return "unclosed quotes", []
-    cmd, args = parts[0].lower(), parts[1:]
-    return cmd, args
 
 
 # helper function for printing instructions
@@ -115,10 +137,12 @@ def run_cli(address_book, notebook):
     """Main loop for the command-line interface."""
 
     print("Assistant bot started. Type 'hello' to start or 'exit' to quit.")
-    global syntax_strict
-    syntax_strict = False
     while True:
         try:
+            if address_book.syntax_strict:
+                print("Strict syntax mode is ON.")
+            else:
+                print("Strict syntax mode is OFF.")
             user_input = input("Enter a command: ")
             if not user_input.strip():
                 continue
@@ -127,6 +151,7 @@ def run_cli(address_book, notebook):
             break
 
         command, args = parse_input(user_input)
+        plain_args = [arg["value"] for arg in args]
         match command:
             case "unclosed quotes":
                 print("Invalid input: unclosed quotes.")
@@ -146,10 +171,10 @@ def run_cli(address_book, notebook):
 
             # address book
             case "add":
-                if syntax_strict:
+                if address_book.syntax_strict:
                     print(add_strict(args, address_book))
                 else:
-                    print(add(args, address_book))
+                    print(add(plain_args, address_book))
             case "birthdays":
                 print(birthdays(args, address_book))
             case "del":
@@ -161,17 +186,16 @@ def run_cli(address_book, notebook):
             case "show-all":
                 print(show_all(address_book))
             case "syntax-strict":
-                syntax_strict = False
-
-                if not args:
+                if not args or args[0].lower() not in ("on", "off"):
                     print("Usage: syntax-strict on/off")
                     continue
+                
 
                 if args[0].lower() == "on":
-                    syntax_strict = True
+                    address_book.syntax_strict = True
                     print("Strict syntax mode enabled.")
                 elif args[0].lower() == "off":
-                    syntax_strict = False
+                    address_book.syntax_strict = False
                     print("Strict syntax mode disabled.")
                 else:
                     print("Usage: syntax-strict on/off")
@@ -190,5 +214,7 @@ def run_cli(address_book, notebook):
             case "show-all-note":
                 print(show_all_notes(notebook))
 
+            case None:
+                print(suggest_command(str(command)))
             case _:
-                print(suggest_command(command))
+                print(suggest_command(str(command)))
