@@ -1,5 +1,6 @@
 from services.address_book_service import (
     add,
+    add_strict,
     birthdays,
     delete,
     edit,
@@ -37,6 +38,7 @@ COMMANDS = [
     "edit-note",
     "find-note",
     "show-all-note",
+    "syntax-strict",
 ]
 
 
@@ -100,6 +102,10 @@ def display_instruction() -> str:
   hello                             - Greeting from bot
   close / exit                      - Save data and exit program
   ? / help                          - Show this manual
+
+  SYNTAX:
+  -------
+  syntax-strict on/off              - Enable or disable strict parsing mode
 {'='*100}
     """
     return help_text
@@ -109,6 +115,8 @@ def run_cli(address_book, notebook):
     """Main loop for the command-line interface."""
 
     print("Assistant bot started. Type 'hello' to start or 'exit' to quit.")
+    global syntax_strict
+    syntax_strict = False
     while True:
         try:
             user_input = input("Enter a command: ")
@@ -138,7 +146,10 @@ def run_cli(address_book, notebook):
 
             # address book
             case "add":
-                print(add(args, address_book))
+                if syntax_strict:
+                    print(add_strict(args, address_book))
+                else:
+                    print(add(args, address_book))
             case "birthdays":
                 print(birthdays(args, address_book))
             case "del":
@@ -149,6 +160,21 @@ def run_cli(address_book, notebook):
                 print(find(args, address_book))
             case "show-all":
                 print(show_all(address_book))
+            case "syntax-strict":
+                syntax_strict = False
+
+                if not args:
+                    print("Usage: syntax-strict on/off")
+                    continue
+
+                if args[0].lower() == "on":
+                    syntax_strict = True
+                    print("Strict syntax mode enabled.")
+                elif args[0].lower() == "off":
+                    syntax_strict = False
+                    print("Strict syntax mode disabled.")
+                else:
+                    print("Usage: syntax-strict on/off")
 
             # notebook
             case "add-note":

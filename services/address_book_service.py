@@ -91,6 +91,42 @@ def add(args: list[str], book: AddressBook) -> str:
     return msg
 
 
+@input_error
+def add_strict(args: list[str], book: AddressBook) -> str:
+    """Adds a new contact or updates an existing one with provided details. Usage: add <name> [phone/email/birthday/address]. Enclose address in quotes if it contains spaces. In strict mode, the command must follow the exact format and order: add <name> [phone] [email] [birthday] [address]."""
+    if not args:
+        raise ValueError("Provide name in quotes.")
+
+    name = args[0]
+
+    record = book.find(name)
+    if not record:
+        record = Record(name)
+        book.add_record(record)
+        msg = f"Contact '{name}' created."
+    else:
+        msg = f"Contact '{name}' updated."
+
+    address_set = False
+
+    for arg in args[1:]:
+
+        if is_phone(arg):
+            record.add_phone(arg)
+
+        elif is_email(arg):
+            record.add_email(arg)
+
+        elif is_date(arg):
+            record.birthday = Birthday(arg)
+
+        elif not address_set:
+            record.address = Address(arg)
+            address_set = True
+
+    return msg
+
+
 def _get_next_birthday(birthday_date: date, today: date) -> date:
     try:
         next_birthday = birthday_date.replace(year=today.year)
