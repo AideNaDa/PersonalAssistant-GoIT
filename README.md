@@ -113,7 +113,7 @@ By default, the assistant automatically detects the type of each argument using 
 `add John 1234567890 john@mail.com 12-05-1990 New York Wall Street 12`
 
 **Automatic Recognition Logic:**
-* **Phone numbers:** Exactly 10 digits.
+* **Phone numbers:** Exactly 10 digits or counry format.
 * **Email addresses:** Text matching standard email format.
 * **Birthdays:** Date format `DD-MM-YYYY`.
 * **Address:** Any remaining text that doesn't match the above patterns.
