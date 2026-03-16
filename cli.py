@@ -6,6 +6,7 @@ from services.address_book_service import (
     birthdays,
     delete,
     edit,
+    edit_strict,
     find,
     show_all,
 )
@@ -151,7 +152,7 @@ def run_cli(address_book, notebook):
             break
 
         command, args = parse_input(user_input)
-        plain_args = [arg["value"] for arg in args]
+        plain_args = [arg["value"] for arg in args] if args else []
         match command:
             case "unclosed quotes":
                 print("Invalid input: unclosed quotes.")
@@ -168,23 +169,6 @@ def run_cli(address_book, notebook):
                 print(display_instruction())
             case "?":
                 print(display_instruction())
-
-            # address book
-            case "add":
-                if address_book.syntax_strict:
-                    print(add_strict(args, address_book))
-                else:
-                    print(add(plain_args, address_book))
-            case "birthdays":
-                print(birthdays(args, address_book))
-            case "del":
-                print(delete(args, address_book))
-            case "edit":
-                print(edit(args, address_book))
-            case "find":
-                print(find(args, address_book))
-            case "show-all":
-                print(show_all(address_book))
             case "syntax-strict":
                 if not args or args[0].lower() not in ("on", "off"):
                     print("Usage: syntax-strict on/off")
@@ -200,17 +184,37 @@ def run_cli(address_book, notebook):
                 else:
                     print("Usage: syntax-strict on/off")
 
+            # address book
+            case "add":
+                if address_book.syntax_strict:
+                    print(add_strict(args, address_book))
+                else:
+                    print(add(plain_args, address_book))
+            case "birthdays":
+                print(birthdays(plain_args, address_book))
+            case "del":
+                print(delete(plain_args, address_book))
+            case "edit":
+                if address_book.syntax_strict:
+                    print(edit_strict(args, address_book))
+                else:
+                    print(edit(plain_args, address_book))
+            case "find":
+                print(find(plain_args, address_book))
+            case "show-all":
+                print(show_all(address_book))
+
             # notebook
             case "add-note":
-                print(add_note(args, notebook))
+                print(add_note(plain_args, notebook))
             case "add-tag":
-                print(add_tag(args, notebook))
+                print(add_tag(plain_args, notebook))
             case "del-note":
-                print(delete_note(args, notebook))
+                print(delete_note(plain_args, notebook))
             case "edit-note":
-                print(edit_note(args, notebook))
+                print(edit_note(plain_args, notebook))
             case "find-note":
-                print(find_note(args, notebook))
+                print(find_note(plain_args, notebook))
             case "show-all-note":
                 print(show_all_notes(notebook))
 
