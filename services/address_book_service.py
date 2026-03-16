@@ -91,13 +91,12 @@ def add(args: list[str], book: AddressBook) -> str:
     return msg
 
 
-@input_error
-def add_strict(args: list[str], book: AddressBook) -> str:
-    """Adds a new contact or updates an existing one with provided details. Usage: add <name> [phone/email/birthday/address]. Enclose address in quotes if it contains spaces. In strict mode, the command must follow the exact format and order: add <name> [phone] [email] [birthday] [address]."""
+def add_strict(args: list[dict], book: AddressBook) -> str:
     if not args:
-        raise ValueError("Provide name in quotes.")
+        raise ValueError("Provide at least a name.")
 
-    name = args[0]
+    name_data = args.pop(0)
+    name = name_data["value"]
 
     record = book.find(name)
     if not record:
@@ -107,22 +106,21 @@ def add_strict(args: list[str], book: AddressBook) -> str:
     else:
         msg = f"Contact '{name}' updated."
 
-    address_set = False
+    for item in args:
+        val = item["value"]
+        is_quoted = item["quoted"]
 
-    for arg in args[1:]:
+        if is_phone(val):
+            record.add_phone(val)
+        elif is_email(val):
+            record.add_email(val)
+        elif is_date(val):
+            record.add_birthday(val)
+        elif is_quoted:
+            record.address = Address(val)
 
-        if is_phone(arg):
-            record.add_phone(arg)
-
-        elif is_email(arg):
-            record.add_email(arg)
-
-        elif is_date(arg):
-            record.birthday = Birthday(arg)
-
-        elif not address_set:
-            record.address = Address(arg)
-            address_set = True
+        else:
+            continue
 
     return msg
 

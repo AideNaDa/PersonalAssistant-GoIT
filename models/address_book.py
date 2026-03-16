@@ -198,6 +198,10 @@ class Record:
 class AddressBook(UserDict):
     """Container for contact records."""
 
+    def __init__(self):
+        super().__init__()
+        self.syntax_strict = False
+
     def add_record(self, record: Record) -> None:
         self.data[record.name.value] = record
 
