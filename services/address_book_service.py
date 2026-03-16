@@ -77,7 +77,7 @@ def add(args: list[str], book: AddressBook) -> str:
         elif is_email(arg):
             # Check for existing email
             if any(e.value == arg.lower() for e in record.emails):
-                print(f"⚠️ Email {arg} is already assigned to {name}.")
+                print(f"Email {arg} is already assigned to {name}.")
                 continue
             record.add_email(arg)
         elif is_date(arg):
@@ -92,6 +92,7 @@ def add(args: list[str], book: AddressBook) -> str:
 
 
 def add_strict(args: list[dict], book: AddressBook) -> str:
+    """Strict mode add command."""
     if not args:
         raise ValueError("Provide at least a name.")
 
@@ -319,3 +320,70 @@ def edit(args: list[str], book: AddressBook) -> str:
         return "Address updated."
 
     return "Invalid edit format."
+
+
+def edit_strict(args: list[dict], book: AddressBook) -> str:
+    """Strict mode edit command."""
+
+    if not args:
+        raise ValueError("Provide contact name.")
+
+    name_data = args.pop(0)
+    name = name_data["value"]
+
+    record = book.find(name)
+    if not record:
+        raise KeyError("Contact not found.")
+
+    values = [arg["value"] for arg in args]
+    quoted_flags = [arg["quoted"] for arg in args]
+
+    # PHONE OR EMAIL REPLACEMENT
+    if len(values) == 2:
+
+        old_val, new_val = values
+
+        if is_phone(old_val) and is_phone(new_val):
+
+            norm_old = Phone._normalize(old_val)
+            norm_new = Phone._normalize(new_val)
+
+            if norm_old not in [p.value for p in record.phones]:
+                raise ValueError("Old phone not found.")
+
+            if norm_new in [p.value for p in record.phones]:
+                raise ValueError("New phone already exists.")
+
+            record.phones = [p for p in record.phones if p.value != norm_old]
+            record.add_phone(new_val)
+
+            return "Phone replaced."
+
+        if is_email(old_val) and is_email(new_val):
+
+            if old_val not in [e.value for e in record.emails]:
+                raise ValueError("Old email not found.")
+
+            if new_val in [e.value for e in record.emails]:
+                raise ValueError("New email already exists.")
+
+            record.emails = [e for e in record.emails if e.value != old_val]
+            record.add_email(new_val)
+
+            return "Email replaced."
+
+    # BIRTHDAY
+    if len(values) == 1:
+
+        val = values[0]
+
+        if is_date(val):
+            record.birthday = Birthday(val)
+            return "Birthday updated."
+
+        if quoted_flags[0]:
+            record.address = Address(val)
+            return "Address updated."
+
+    return "Invalid edit format."
+    
