@@ -1,3 +1,4 @@
+from ast import arg
 from datetime import date, datetime, timedelta
 from typing import Callable
 import re
@@ -83,7 +84,12 @@ def add(args: list[str], book: AddressBook) -> str:
         elif is_date(arg):
             record.birthday = Birthday(arg)
         else:
-            address_parts.append(arg)
+            if re.search(r'[^a-zA-Zа-яА-Я0-9\s№/.,;:-"\']', arg):
+                print(
+                    f"'{arg}' contains invalid characters for an address. Skipping."
+                )
+            else:
+                address_parts.append(arg)
 
     if address_parts:
         if record.address:
@@ -283,7 +289,12 @@ def edit(args: list[str], book: AddressBook) -> str:
     else:
         address_parts = []
         for arg in rest:
-            address_parts.append(arg)
+            if re.search(r'[^a-zA-Zа-яА-Я0-9\s№/.,;:-"\']', arg):
+                print(
+                    f"'{arg}' contains invalid characters for an address. Skipping."
+                )
+            else:
+                address_parts.append(arg)
 
         record.address = Address(" ".join(address_parts))
         return "Address updated."
