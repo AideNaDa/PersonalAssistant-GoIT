@@ -84,13 +84,9 @@ def add(args: list[str], book: AddressBook) -> str:
         elif is_date(arg):
             record.birthday = Birthday(arg)
         else:
-            if "@" in arg:
+            if re.search(r'[^a-zA-Zа-яА-Я0-9\s№/.,;:-"\']', arg):
                 print(
-                    f"⚠️ '{arg}' looks like an email but is invalid. Skipping."
-                )
-            elif re.search(r'[^a-zA-Zа-яА-Я0-9\s№/.,;:"\']', arg):
-                print(
-                    f"⚠️ '{arg}' contains invalid characters for an address. Skipping."
+                    f"'{arg}' contains invalid characters for an address. Skipping."
                 )
             else:
                 address_parts.append(arg)
@@ -293,6 +289,10 @@ def edit(args: list[str], book: AddressBook) -> str:
     else:
         address_parts = []
         for arg in rest:
+            if re.search(r'[^a-zA-Zа-яА-Я0-9\s№/.,;:-"\']', arg):
+                print(
+                    f"'{arg}' contains invalid characters for an address. Skipping."
+                )
             address_parts.append(arg)
 
         record.address = Address(" ".join(address_parts))
