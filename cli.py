@@ -75,12 +75,12 @@ def display_instruction() -> str:
 
   CONTACT MANAGEMENT:
   -------------------
-  add [name] <ph> <bd> <addr> <em>  - Create new contact (order doesn't matter)
+  add [name] <ph> <bd> <addr:address> <em>  - Create new contact (order doesn't matter)
   add [name] [phone/email]          - Add extra phone or email to contact
   birthdays [days]                  - Shows upcoming birthdays in 'X' days
   del [name]                        - Delete contact completely
   del [name] [field]                - Delete specific phone, email, bd or addr
-  edit [name] [old] [new]           - Replace phone/email or update bd/addr
+  edit [name] [old] [new]           - Replace phone/email or update bd/addr:address
   find [query]                      - Search contacts by any field
   show-all                          - Display all saved contacts
 
