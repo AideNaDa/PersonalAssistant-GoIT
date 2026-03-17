@@ -4,17 +4,25 @@ from services.address_book_service import input_error
 
 @input_error
 def add_note(args: list[str], notebook: NoteBook) -> str:
-    """Adds a new note with optional tags. Usage: add-note <title> <text> [tag1 tag2 ...]. Enclose text in quotes if it contains spaces."""
+    """Adds a new note with optional tags or appends to existing note. Usage: add-note <title> <text> [tag1 tag2 ...]. Enclose text in quotes if it contains spaces."""
 
     if len(args) < 2:
         raise ValueError("Provide title and text. Enclose text in quotes.")
     title, text, *tags = args
-    note = Note(title, text)
+    note = notebook.find(title)
+    if note:
+        # Append to existing note
+        note.text.value += " " + text
+        msg = f"Text appended to note '{title}'."
+    else:
+        # Create new note
+        note = Note(title, text)
+        notebook.add_note(note)
+        msg = f"Note '{title}' created."
 
     for tag in tags:
         note.add_tag(tag)
-    notebook.add_note(note)
-    return f"Note '{title}' created."
+    return msg
 
 
 @input_error
