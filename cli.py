@@ -86,7 +86,7 @@ def display_instruction() -> str:
 
   NOTE MANAGEMENT:
   ----------------
-  add-note [title] "[text]" <tags>  - Create a note (text in quotes "")
+  add-note [title] "[text]" <tags>  - Create a note or append text to existing (text in quotes "")
   add-tag [title] [tag1] [tag2]...  - Add one or more tags to a note
   del-note [title]                  - Delete note completely
   del-note [title] [tag]            - Delete specific tag from a note
