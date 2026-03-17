@@ -1,12 +1,8 @@
-from unittest import case
-
 from services.address_book_service import (
     add,
-    add_strict,
     birthdays,
     delete,
     edit,
-    edit_strict,
     find,
     show_all,
 )
@@ -41,7 +37,6 @@ COMMANDS = [
     "edit-note",
     "find-note",
     "show-all-note",
-    "syntax-strict",
 ]
 
 
@@ -59,34 +54,14 @@ def suggest_command(user_input: str) -> str:
 
 
 def parse_input(user_input):
+    """Parses the user input into a command and its arguments."""
+
     try:
-        # Створюємо лексер, який розпізнає лапки
-        lexer = shlex.shlex(user_input, posix=True)
-        lexer.whitespace_split = True
-        lexer.commenters = ""  # щоб не ігнорував символи після #
-
-        tokens = []
-        while True:
-            token = lexer.get_token()
-            if not token:
-                break
-            # Перевіряємо, чи був токен у лапках у вихідному рядку
-            # shlex прибирає лапки, але ми можемо перевірити стан лексера
-            was_quoted = (
-                user_input.find(f'"{token}"') != -1
-                or user_input.find(f"'{token}'") != -1
-            )
-
-            tokens.append({"value": token, "quoted": was_quoted})
-
-        if not tokens:
-            return None, []
-
-        cmd = tokens[0]["value"].lower()
-        args = tokens[1:]  # повертаємо список словників
-        return cmd, args
+        parts = shlex.split(user_input)
     except ValueError:
         return "unclosed quotes", []
+    cmd, args = parts[0].lower(), parts[1:]
+    return cmd, args
 
 
 # helper function for printing instructions
@@ -125,10 +100,6 @@ def display_instruction() -> str:
   hello                             - Greeting from bot
   close / exit                      - Save data and exit program
   ? / help                          - Show this manual
-
-  SYNTAX:
-  -------
-  syntax-strict on/off              - Enable or disable strict parsing mode
 {'='*100}
     """
     return help_text
@@ -137,10 +108,6 @@ def display_instruction() -> str:
 def run_cli(address_book, notebook):
     """Main loop for the command-line interface."""
 
-    if address_book.syntax_strict:
-        print("Strict syntax mode is ON.")
-    else:
-        print("Strict syntax mode is OFF.")
     print("Assistant bot started. Type 'hello' to start or 'exit' to quit.")
     while True:
         try:
@@ -152,7 +119,6 @@ def run_cli(address_book, notebook):
             break
 
         command, args = parse_input(user_input)
-        plain_args = [arg["value"] for arg in args] if args else []
         match command:
             case "unclosed quotes":
                 print("Invalid input: unclosed quotes.")
@@ -169,55 +135,34 @@ def run_cli(address_book, notebook):
                 print(display_instruction())
             case "?":
                 print(display_instruction())
-            case "syntax-strict":
-                if not args or args[0]["value"].lower() not in ("on", "off"):
-                    print("Usage: syntax-strict on/off")
-                    continue
-
-                if args[0]["value"].lower() == "on":
-                    address_book.syntax_strict = True
-                    print("Strict syntax mode enabled.")
-                elif args[0]["value"].lower() == "off":
-                    address_book.syntax_strict = False
-                    print("Strict syntax mode disabled.")
-                else:
-                    print("Usage: syntax-strict on/off")
 
             # address book
             case "add":
-                if address_book.syntax_strict:
-                    print(add_strict(args, address_book))
-                else:
-                    print(add(plain_args, address_book))
+                print(add(args, address_book))
             case "birthdays":
-                print(birthdays(plain_args, address_book))
+                print(birthdays(args, address_book))
             case "del":
-                print(delete(plain_args, address_book))
+                print(delete(args, address_book))
             case "edit":
-                if address_book.syntax_strict:
-                    print(edit_strict(args, address_book))
-                else:
-                    print(edit(plain_args, address_book))
+                print(edit(args, address_book))
             case "find":
-                print(find(plain_args, address_book))
+                print(find(args, address_book))
             case "show-all":
                 print(show_all(address_book))
 
             # notebook
             case "add-note":
-                print(add_note(plain_args, notebook))
+                print(add_note(args, notebook))
             case "add-tag":
-                print(add_tag(plain_args, notebook))
+                print(add_tag(args, notebook))
             case "del-note":
-                print(delete_note(plain_args, notebook))
+                print(delete_note(args, notebook))
             case "edit-note":
-                print(edit_note(plain_args, notebook))
+                print(edit_note(args, notebook))
             case "find-note":
-                print(find_note(plain_args, notebook))
+                print(find_note(args, notebook))
             case "show-all-note":
                 print(show_all_notes(notebook))
 
-            case None:
-                print(suggest_command(str(command)))
             case _:
-                print(suggest_command(str(command)))
+                print(suggest_command(command))

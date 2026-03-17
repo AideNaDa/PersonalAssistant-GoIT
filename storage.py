@@ -43,9 +43,6 @@ def load_data() -> tuple[AddressBook, NoteBook]:
             for note_data in notes.values():
                 notebook.add_note(Note.from_dict(note_data))
 
-            # Uploading strict syntax setting
-            address_book.syntax_strict = full_data.get("strict_syntax", False)
-
     except (FileNotFoundError, json.JSONDecodeError):
         # If the file is missing or empty/corrupted
         print("The data file was not found or is empty.")
