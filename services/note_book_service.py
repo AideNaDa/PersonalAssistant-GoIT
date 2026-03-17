@@ -58,18 +58,18 @@ def find_note(args: list[str], notebook: NoteBook) -> str:
     note = notebook.find(args[0])
     msg = [SEPARATOR_NOTE, HEADER_NOTE, SEPARATOR_NOTE]
     if note:
-        return str(note)
+        msg.append(str(note))
     else:
-        results = []
+        result = []
         for note in notebook.data.values():
             tags_lower = [t.value for t in note.tags]
             tags_match = all(arg in tags_lower for arg in args)
             if tags_match:
-                results.append(str(note))
-    if not results:
-        return "No matches found."
+                result.append(str(note))
+        if not result:
+            return "No matches found."
 
-    msg.extend(results)
+        msg.extend(result)
 
     return "\n".join(msg)
 
