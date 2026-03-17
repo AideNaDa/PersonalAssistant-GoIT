@@ -293,7 +293,8 @@ def edit(args: list[str], book: AddressBook) -> str:
                 print(
                     f"'{arg}' contains invalid characters for an address. Skipping."
                 )
-            address_parts.append(arg)
+            else:
+                address_parts.append(arg)
 
         record.address = Address(" ".join(address_parts))
         return "Address updated."
