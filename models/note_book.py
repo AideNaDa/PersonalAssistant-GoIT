@@ -110,9 +110,8 @@ class NoteBook(UserDict):
     """Container for notes."""
 
     def add_note(self, note: Note):
-        if self.find(note.title.value):
-            raise ValueError("Note with this title is already exists")
-        self.data[note.title.value.lower()] = note
+        if not self.find(note.title.value):
+            self.data[note.title.value.lower()] = note
 
     def find(self, title: str) -> Note | None:
         return self.data.get(title.lower())

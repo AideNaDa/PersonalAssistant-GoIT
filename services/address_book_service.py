@@ -1,4 +1,3 @@
-from ast import arg
 from datetime import date, datetime, timedelta
 from typing import Callable
 import re
@@ -51,7 +50,7 @@ def is_date(val: str) -> bool:
 
 @input_error
 def add(args: list[str], book: AddressBook) -> str:
-    """Adds a new contact or updates an existing one with provided details. Usage: add <name> [phone/email/birthday/address]. Enclose address in quotes if it contains spaces."""
+    """Adds a new contact or updates an existing one with provided details. Usage: add <name> [phone/email/birthday/addr:address]. Address must be prefixed with 'addr:' or 'address:'."""
 
     if len(args) < 1:
         raise ValueError("Provide at least a name.")
@@ -78,18 +77,21 @@ def add(args: list[str], book: AddressBook) -> str:
         elif is_email(arg):
             # Check for existing email
             if any(e.value == arg.lower() for e in record.emails):
-                print(f"⚠️ Email {arg} is already assigned to {name}.")
+                print(f"Email {arg} is already assigned to {name}.")
                 continue
             record.add_email(arg)
         elif is_date(arg):
             record.birthday = Birthday(arg)
-        else:
-            if re.search(r'[^a-zA-Zа-яА-Я0-9\s№/.,;:-"\']', arg):
+        elif arg.startswith("addr:") or arg.startswith("address:"):
+            address_value = arg.split(":", 1)[1].strip()
+            if re.search(r'[^a-zA-Zа-яА-Я0-9\s№/.,;:"\'-]', address_value):
                 print(
-                    f"'{arg}' contains invalid characters for an address. Skipping."
+                    f"Address '{address_value}' contains invalid characters. Skipping."
                 )
             else:
-                address_parts.append(arg)
+                address_parts.append(address_value)
+        else:
+            print(f"Unrecognized argument '{arg}'. Skipping.")
 
     if address_parts:
         if record.address:
@@ -289,12 +291,16 @@ def edit(args: list[str], book: AddressBook) -> str:
     else:
         address_parts = []
         for arg in rest:
-            if re.search(r'[^a-zA-Zа-яА-Я0-9\s№/.,;:-"\']', arg):
-                print(
-                    f"'{arg}' contains invalid characters for an address. Skipping."
-                )
+            if arg.startswith("addr:") or arg.startswith("address:"):
+                address_value = arg.split(":", 1)[1].strip()
+                if re.search(r'[^a-zA-Zа-яА-Я0-9\s№/.,;:"\'-]', address_value):
+                    print(
+                        f"Address '{address_value}' contains invalid characters. Skipping."
+                    )
+                else:
+                    address_parts.append(address_value)
             else:
-                address_parts.append(arg)
+                print(f"Unrecognized argument '{arg}'. Skipping.")
 
         record.address = Address(" ".join(address_parts))
         return "Address updated."
