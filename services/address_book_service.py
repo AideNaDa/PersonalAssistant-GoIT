@@ -57,6 +57,7 @@ def add(args: list[str], book: AddressBook) -> str:
 
     name, *rest = args
     record = book.find(name)
+    update = False
     if not record:
         record = Record(name)
         book.add_record(record)
@@ -73,6 +74,7 @@ def add(args: list[str], book: AddressBook) -> str:
                 print(f"Phone {arg} is already assigned to {name}.")
                 continue
             record.add_phone(arg)
+            update = True
 
         elif is_email(arg):
             # Check for existing email
@@ -80,8 +82,10 @@ def add(args: list[str], book: AddressBook) -> str:
                 print(f"Email {arg} is already assigned to {name}.")
                 continue
             record.add_email(arg)
+            update = True
         elif is_date(arg):
             record.birthday = Birthday(arg)
+            update = True
         elif arg.startswith("addr:") or arg.startswith("address:"):
             address_value = arg.split(":", 1)[1].strip()
             if re.search(r'[^a-zA-Zа-яА-Я0-9\s№/.,;:"\'-]', address_value):
@@ -99,8 +103,9 @@ def add(args: list[str], book: AddressBook) -> str:
                 f"If you want to update the address, please use the edit command. Current address: {record.address}"
             )
         record.address = Address(" ".join(address_parts))
+        update = True
 
-    return msg
+    return msg if update else 'Contact not updated or created.'
 
 
 def _get_next_birthday(birthday_date: date, today: date) -> date:
