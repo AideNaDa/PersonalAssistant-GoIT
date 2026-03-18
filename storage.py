@@ -3,7 +3,14 @@ from models.address_book import AddressBook, Record
 import json
 from pathlib import Path
 
-FILENAME = Path.home() / ".assistant_bot.json"
+home = Path.home()
+desktop = home / "Desktop"
+
+if desktop.exists():
+    FILENAME = desktop / "data.json"
+else:
+    # fallback якщо Desktop нема
+    FILENAME = home / "data.json"
 
 
 def save_data(address_book: AddressBook, notebook: NoteBook) -> None:
