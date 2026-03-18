@@ -1,8 +1,9 @@
 from models.note_book import NoteBook, Note
 from models.address_book import AddressBook, Record
 import json
+from pathlib import Path
 
-FILENAME = "data.json"
+FILENAME = Path.home() / ".assistant_bot.json"
 
 
 def save_data(address_book: AddressBook, notebook: NoteBook) -> None:
