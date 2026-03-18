@@ -103,7 +103,7 @@ def add(args: list[str], book: AddressBook) -> str:
         updated = True
 
     if not record.phones and not record.emails and not record.birthday and not record.address:
-    return f"Contact '{name}' created."
+        return f"Contact '{name}' created."
 
     if updated:
         return f"Contact '{name}' updated."
