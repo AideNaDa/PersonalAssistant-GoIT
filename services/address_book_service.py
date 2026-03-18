@@ -205,8 +205,8 @@ def find(args: list[str], book: AddressBook) -> str:
             results.append(str(record))
             continue
 
-        if search_field == "address" or (
-            search_field is None
+        if (
+            search_field == "address"
             and record.address
             and search_query in str(record.address).lower()
         ):
