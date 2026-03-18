@@ -16,7 +16,6 @@ def save_data(address_book: AddressBook, notebook: NoteBook) -> None:
         "notes": {
             title: note.to_dict() for title, note in notebook.data.items()
         },
-        "strict_syntax": address_book.syntax_strict,
     }
 
     with open(FILENAME, "w", encoding="utf-8") as f:

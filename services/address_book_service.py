@@ -155,32 +155,61 @@ def birthdays(args: list[str], book: AddressBook) -> str:
 
 
 def find(args: list[str], book: AddressBook) -> str:
-    """Search contacts by partial match in name, phone, email or address."""
+    """Search contacts by partial match in name, phone, email or address. Use prefixes like addr: for specific field search."""
 
     query = args[0].lower()
 
     query_digits = re.sub(r"\D", "", query)
     results = []
     msg = [SEPARATOR, HEADER, SEPARATOR]
-    for record in book.data.values():
-        if query in str(record.name).lower():
-            results.append(str(record))
-            continue
 
-        # Пошук по телефонах
-        if query_digits and any(
-            query_digits in p.value for p in record.phones
+    # Parse prefixes for specific field search
+    if query.startswith("name:"):
+        search_query = query[5:].strip()
+        search_field = "name"
+    elif query.startswith("phone:"):
+        search_query = query[6:].strip()
+        search_field = "phone"
+    elif query.startswith("email:"):
+        search_query = query[6:].strip()
+        search_field = "email"
+    elif query.startswith("addr:") or query.startswith("address:"):
+        search_query = query.split(":", 1)[1].strip()
+        search_field = "address"
+    else:
+        search_query = query
+        search_field = None  # General search
+
+    for record in book.data.values():
+        if search_field == "name" or (
+            search_field is None and search_query in str(record.name).lower()
         ):
             results.append(str(record))
             continue
 
-        # Пошук по email
-        if any(query in str(email).lower() for email in record.emails):
+        if search_field == "phone" or (
+            search_field is None
+            and query_digits
+            and is_phone(query_digits)
+            and any(query_digits in p.value for p in record.phones)
+        ):
             results.append(str(record))
             continue
 
-        # Пошук по адресі
-        if record.address and query in str(record.address).lower():
+        if search_field == "email" or (
+            search_field is None
+            and any(
+                search_query in str(email).lower() for email in record.emails
+            )
+        ):
+            results.append(str(record))
+            continue
+
+        if search_field == "address" or (
+            search_field is None
+            and record.address
+            and search_query in str(record.address).lower()
+        ):
             results.append(str(record))
             continue
 
